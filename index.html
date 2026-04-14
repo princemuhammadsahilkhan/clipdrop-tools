@@ -1,0 +1,2555 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClipDrop Tools - Free Online Tools (Word Counter, JSON Formatter, YouTube Thumbnail Downloader)</title>
+
+    <meta name="description" content="ClipDrop Tools offers fast, free online tools including word counter, password generator, JSON formatter, YouTube thumbnail downloader and more. No signup required." />
+
+    <meta
+      name="keywords"
+      content="clipdrop tools, free online tools, word counter, json formatter, youtube thumbnail downloader, password generator"
+    />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="ClipDrop Tools - Free Online Tools" />
+    <meta property="og:description" content="Fast, free online tools for everyday use. No signup required." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClipDrop Tools" />
+
+    <!-- Favicon (placeholder) -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%233b82f6'/%3E%3Cstop%20offset='1'%20stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='16'%20fill='url(%23g)'/%3E%3Cpath%20d='M22%2020h20v6H35v18h-6V26h-7z'%20fill='white'/%3E%3C/svg%3E"
+    />
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Keep styling entirely via Tailwind tokens (no custom colors).
+      tailwind.config = {
+        theme: {
+          extend: {},
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased">
+    <div id="root"></div>
+
+    <!-- React (CDN) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel (CDN for JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useMemo, useState } = React;
+
+      const PAGES = {
+        HOME: "Home",
+        WORD_COUNTER: "Word Counter",
+        PASSWORD_GENERATOR: "Password Generator",
+        AGE_CALCULATOR: "Age Calculator",
+        SALARY_CALCULATOR: "Salary Calculator",
+        YT_THUMBNAIL: "YouTube Thumbnail Downloader",
+        JSON_FORMATTER: "JSON Formatter",
+        TEXT_CASE: "Text Case Converter",
+        COLOR_PICKER: "Color Picker",
+        RANDOM_NAME: "Random Name Generator",
+        INVOICE_GENERATOR: "Invoice Generator",
+      };
+
+      function cx(...classes) {
+        return classes.filter(Boolean).join(" ");
+      }
+
+      const UI = {
+        page: "px-4 sm:px-6 py-6",
+        container: "max-w-6xl mx-auto w-full",
+        toolCard: "rounded-2xl bg-white border border-slate-200 shadow-sm p-6 sm:p-7",
+        subCard: "rounded-2xl bg-slate-50 border border-slate-200 p-5",
+        statCard: "rounded-xl bg-white border border-slate-200 shadow-sm p-4",
+        input:
+          "w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 " +
+          "focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition",
+        textarea:
+          "w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 " +
+          "focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition resize-y",
+        btnPrimary:
+          "inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition " +
+          "bg-blue-600 text-white hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 " +
+          "disabled:opacity-60 disabled:cursor-not-allowed",
+        btnSecondary:
+          "inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition " +
+          "bg-white text-slate-900 border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200 " +
+          "disabled:opacity-60 disabled:cursor-not-allowed",
+        btnTertiary:
+          "inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold transition " +
+          "bg-slate-900 text-slate-100 border border-slate-700 hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-700 " +
+          "disabled:opacity-60 disabled:cursor-not-allowed",
+      };
+
+      function Container({ className, children }) {
+        return <div className={cx(UI.container, className)}>{children}</div>;
+      }
+
+      function Page({ className, children }) {
+        return (
+          <div className={cx(UI.page, className)}>
+            <Container>{children}</Container>
+          </div>
+        );
+      }
+
+      function ToolCard({ className, children }) {
+        return <div className={cx(UI.toolCard, className)}>{children}</div>;
+      }
+
+      function AdPlaceholder({ className, label = "Ad مساحة" }) {
+        return (
+          <div
+            className={cx(
+              "rounded-2xl border border-slate-200 bg-slate-100/80 text-slate-500",
+              "px-4 py-4 sm:px-6 sm:py-5",
+              "text-center text-sm font-semibold",
+              "select-none",
+              className
+            )}
+            aria-label="Ad placeholder"
+            role="note"
+          >
+            {label}
+          </div>
+        );
+      }
+
+      function IconBase({ children, className }) {
+        return (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={cx("h-5 w-5", className)}
+            aria-hidden="true"
+          >
+            {children}
+          </svg>
+        );
+      }
+
+      const Icons = {
+        Home: (props) => (
+          <IconBase {...props}>
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5 10v10h14V10" />
+            <path d="M9 20v-6h6v6" />
+          </IconBase>
+        ),
+        Word: (props) => (
+          <IconBase {...props}>
+            <path d="M5 7h14" />
+            <path d="M5 12h10" />
+            <path d="M5 17h14" />
+          </IconBase>
+        ),
+        Key: (props) => (
+          <IconBase {...props}>
+            <path d="M7.5 14.5a4.5 4.5 0 1 1 3.7-7.1" />
+            <path d="M11 12l10 0" />
+            <path d="M17 12v3" />
+            <path d="M20 12v2" />
+          </IconBase>
+        ),
+        Calendar: (props) => (
+          <IconBase {...props}>
+            <path d="M7 3v3" />
+            <path d="M17 3v3" />
+            <path d="M4.5 7h15" />
+            <path d="M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" />
+          </IconBase>
+        ),
+        Dollar: (props) => (
+          <IconBase {...props}>
+            <path d="M12 2v20" />
+            <path d="M16.5 6.5c0-1.9-2-3.5-4.5-3.5S7.5 4.6 7.5 6.5 9.5 10 12 10s4.5 1.6 4.5 3.5S14.5 17 12 17s-4.5-1.6-4.5-3.5" />
+          </IconBase>
+        ),
+        YouTube: (props) => (
+          <IconBase {...props}>
+            <path d="M4 8.5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-7Z" />
+            <path d="M11 9.5 15.5 12 11 14.5z" />
+          </IconBase>
+        ),
+        Braces: (props) => (
+          <IconBase {...props}>
+            <path d="M9 4c-2 0-3 1-3 3v2c0 1-1 2-2 2 1 0 2 1 2 2v2c0 2 1 3 3 3" />
+            <path d="M15 4c2 0 3 1 3 3v2c0 1 1 2 2 2-1 0-2 1-2 2v2c0 2-1 3-3 3" />
+          </IconBase>
+        ),
+        Text: (props) => (
+          <IconBase {...props}>
+            <path d="M4 6h16" />
+            <path d="M8 6v14" />
+            <path d="M16 6v14" />
+            <path d="M6 20h12" />
+          </IconBase>
+        ),
+        Color: (props) => (
+          <IconBase {...props}>
+            <path d="M12 3a7 7 0 0 0-7 7c0 4 3 8 7 11 4-3 7-7 7-11a7 7 0 0 0-7-7Z" />
+            <path d="M9.5 10.5h.01" />
+          </IconBase>
+        ),
+        User: (props) => (
+          <IconBase {...props}>
+            <path d="M20 21a8 8 0 0 0-16 0" />
+            <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
+          </IconBase>
+        ),
+        Receipt: (props) => (
+          <IconBase {...props}>
+            <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3Z" />
+            <path d="M9 8h6" />
+            <path d="M9 12h6" />
+            <path d="M9 16h5" />
+          </IconBase>
+        ),
+      };
+
+      function Sidebar({ currentPage, onNavigate, mobileOpen, setMobileOpen }) {
+        const items = useMemo(
+          () => [
+            { key: PAGES.HOME, label: "Home", icon: Icons.Home },
+            { key: PAGES.WORD_COUNTER, label: "Word Counter", icon: Icons.Word },
+            { key: PAGES.PASSWORD_GENERATOR, label: "Password Generator", icon: Icons.Key },
+            { key: PAGES.AGE_CALCULATOR, label: "Age Calculator", icon: Icons.Calendar },
+            { key: PAGES.SALARY_CALCULATOR, label: "Salary Calculator", icon: Icons.Dollar },
+            { key: PAGES.YT_THUMBNAIL, label: "YouTube Thumbnail Downloader", icon: Icons.YouTube },
+            { key: PAGES.JSON_FORMATTER, label: "JSON Formatter", icon: Icons.Braces },
+            { key: PAGES.TEXT_CASE, label: "Text Case Converter", icon: Icons.Text },
+            { key: PAGES.COLOR_PICKER, label: "Color Picker", icon: Icons.Color },
+            { key: PAGES.RANDOM_NAME, label: "Random Name Generator", icon: Icons.User },
+            { key: PAGES.INVOICE_GENERATOR, label: "Invoice Generator", icon: Icons.Receipt },
+          ],
+          []
+        );
+
+        const nav = (
+          <div className="h-full flex flex-col">
+            <div className="px-4 py-5 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-blue-600/15 text-blue-300 flex items-center justify-center border border-blue-500/20">
+                  <Icons.Home className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xl font-semibold tracking-tight text-slate-50">ClipDrop Tools</div>
+                  <div className="text-sm text-slate-400 mt-0.5">Fast, Free Online Tools That Actually Work</div>
+                </div>
+              </div>
+            </div>
+
+            <nav className="flex-1 overflow-auto p-2">
+              {items.map((it) => {
+                const active = it.key === currentPage;
+                const Icon = it.icon;
+                return (
+                  <button
+                    key={it.key}
+                    onClick={() => {
+                      onNavigate(it.key);
+                      setMobileOpen(false);
+                    }}
+                    className={cx(
+                      "group relative w-full text-left rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
+                      "hover:bg-slate-800/70 hover:text-slate-50",
+                      active ? "bg-slate-800/90 text-slate-50" : "text-slate-300"
+                    )}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span
+                      className={cx(
+                        "absolute left-0 top-2 bottom-2 w-1 rounded-r",
+                        active ? "bg-blue-400" : "bg-transparent group-hover:bg-slate-700"
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span className="flex items-center gap-3">
+                      <span
+                        className={cx(
+                          "shrink-0 text-slate-400 transition-colors duration-200",
+                          active ? "text-blue-300" : "group-hover:text-slate-200"
+                        )}
+                        aria-hidden="true"
+                      >
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <span className="truncate">{it.label}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="p-4 border-t border-slate-800 text-xs text-slate-500">
+              Built with React + Tailwind
+            </div>
+          </div>
+        );
+
+        return (
+          <>
+            {/* Desktop sidebar */}
+            <aside className="hidden md:block md:w-72 lg:w-80 shrink-0 bg-slate-900 border-r border-slate-800">
+              {nav}
+            </aside>
+
+            {/* Mobile sidebar overlay + drawer */}
+            <div className={cx("md:hidden", mobileOpen ? "block" : "hidden")}
+                 role="dialog"
+                 aria-modal="true">
+              <div
+                className="fixed inset-0 bg-black/60"
+                onClick={() => setMobileOpen(false)}
+              />
+              <aside className="fixed inset-y-0 left-0 w-80 max-w-[86vw] bg-slate-900 border-r border-slate-800 shadow-lg">
+                {nav}
+              </aside>
+            </div>
+          </>
+        );
+      }
+
+      function TopBar({ onOpenMobileSidebar, pageTitle }) {
+        return (
+          <div className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-slate-200">
+            <Container className="px-4 sm:px-6">
+              <div className="flex items-center gap-3 py-3">
+              <button
+                className={cx(
+                  "md:hidden inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold transition",
+                  "bg-slate-900 text-slate-100 border border-slate-800 hover:bg-slate-800"
+                )}
+                onClick={onOpenMobileSidebar}
+                aria-label="Open navigation"
+              >
+                Menu
+              </button>
+              <div className="min-w-0">
+                <div className="text-xs text-slate-500">ClipDrop Tools</div>
+                <div className="text-lg font-semibold tracking-tight truncate text-slate-900">{pageTitle}</div>
+              </div>
+              <div className="flex-1" />
+              <div className="hidden sm:block text-xs text-slate-500">Fast, Free Online Tools That Actually Work</div>
+              </div>
+            </Container>
+          </div>
+        );
+      }
+
+      function Home({ onSelectTool }) {
+        const cards = useMemo(
+          () => [
+            {
+              key: PAGES.WORD_COUNTER,
+              title: "Word Counter",
+              desc: "Count words, characters, lines, and more in seconds.",
+              icon: Icons.Word,
+            },
+            {
+              key: PAGES.PASSWORD_GENERATOR,
+              title: "Password Generator",
+              desc: "Create strong passwords instantly (length & options later).",
+              icon: Icons.Key,
+            },
+            {
+              key: PAGES.AGE_CALCULATOR,
+              title: "Age Calculator",
+              desc: "Calculate age from a birthdate (coming soon).",
+              icon: Icons.Calendar,
+            },
+            {
+              key: PAGES.SALARY_CALCULATOR,
+              title: "Salary Calculator",
+              desc: "Estimate take-home pay and breakdowns (coming soon).",
+              icon: Icons.Dollar,
+            },
+            {
+              key: PAGES.YT_THUMBNAIL,
+              title: "YouTube Thumbnail Downloader",
+              desc: "Grab thumbnail previews from a YouTube URL (coming soon).",
+              icon: Icons.YouTube,
+            },
+            {
+              key: PAGES.JSON_FORMATTER,
+              title: "JSON Formatter",
+              desc: "Prettify and validate JSON with one click (coming soon).",
+              icon: Icons.Braces,
+            },
+            {
+              key: PAGES.TEXT_CASE,
+              title: "Text Case Converter",
+              desc: "Convert to UPPERCASE, lowercase, Title Case, and more.",
+              icon: Icons.Text,
+            },
+            {
+              key: PAGES.COLOR_PICKER,
+              title: "Color Picker",
+              desc: "Pick colors and copy HEX/RGB (coming soon).",
+              icon: Icons.Color,
+            },
+            {
+              key: PAGES.RANDOM_NAME,
+              title: "Random Name Generator",
+              desc: "Generate random names for demos and testing (coming soon).",
+              icon: Icons.User,
+            },
+            {
+              key: PAGES.INVOICE_GENERATOR,
+              title: "Invoice Generator",
+              desc: "Create simple invoices quickly (coming soon).",
+              icon: Icons.Receipt,
+            },
+          ],
+          []
+        );
+
+        return (
+          <Page>
+            <div className="flex items-end justify-between gap-4 mb-6">
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">
+                  ClipDrop Tools — Fast, Free Online Tools That Actually Work
+                </h1>
+                <p className="text-slate-600 mt-2">No signup. No limits. Just tools.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {cards.slice(0, 4).map((c) => {
+                const Icon = c.icon;
+                return (
+                  <button
+                    key={c.key}
+                    onClick={() => onSelectTool(c.key)}
+                    className={cx(
+                      "group text-left rounded-2xl border border-slate-200 bg-white shadow-sm",
+                      "hover:shadow-md hover:border-slate-300",
+                      "transition-all duration-200",
+                      "p-5",
+                      "transform hover:scale-[1.015]"
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-base font-semibold text-slate-900 truncate">{c.title}</div>
+                            <div className="text-sm text-slate-600 mt-1">{c.desc}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="shrink-0 mt-1 text-slate-400 group-hover:text-blue-600 transition-colors duration-200">
+                        →
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+
+              <div className="sm:col-span-2 lg:col-span-3">
+                <AdPlaceholder />
+              </div>
+
+              {cards.slice(4).map((c) => {
+                const Icon = c.icon;
+                return (
+                  <button
+                    key={c.key}
+                    onClick={() => onSelectTool(c.key)}
+                    className={cx(
+                      "group text-left rounded-2xl border border-slate-200 bg-white shadow-sm",
+                      "hover:shadow-md hover:border-slate-300",
+                      "transition-all duration-200",
+                      "p-5",
+                      "transform hover:scale-[1.015]"
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-base font-semibold text-slate-900 truncate">{c.title}</div>
+                            <div className="text-sm text-slate-600 mt-1">{c.desc}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="shrink-0 mt-1 text-slate-400 group-hover:text-blue-600 transition-colors duration-200">
+                        →
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </Page>
+        );
+      }
+
+      function computeWordCounterStats(text) {
+        const normalized = String(text ?? "");
+
+        const charCountWithSpaces = normalized.length;
+        const charCountWithoutSpaces = normalized.replace(/\s/g, "").length;
+
+        // Words: split on whitespace, ignore extra spaces.
+        const trimmed = normalized.trim();
+        const words = trimmed ? trimmed.split(/\s+/).filter(Boolean).length : 0;
+
+        // Sentences: count groups of sentence-ending punctuation.
+        // Example: "Hello..." counts as 1 sentence end.
+        const sentenceMatches = normalized.match(/[.!?]+(?=\s|$)/g);
+        const sentences = sentenceMatches ? sentenceMatches.length : 0;
+
+        const readingTimeMinutes = words === 0 ? 0 : Math.ceil(words / 200);
+
+        return {
+          words,
+          charCountWithSpaces,
+          charCountWithoutSpaces,
+          sentences,
+          readingTimeMinutes,
+        };
+      }
+
+      function Stat({ label, value }) {
+        return (
+          <div className={UI.statCard}>
+            <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
+            <div className="mt-1 text-2xl font-semibold text-slate-900 tabular-nums">{value}</div>
+          </div>
+        );
+      }
+
+      function WordCounter() {
+        const [text, setText] = useState("");
+        const stats = useMemo(() => computeWordCounterStats(text), [text]);
+        const [copyState, setCopyState] = useState("idle");
+
+        async function handleCopy() {
+          try {
+            if (navigator?.clipboard?.writeText) {
+              await navigator.clipboard.writeText(text);
+            } else {
+              // Fallback for older browsers.
+              const ta = document.createElement("textarea");
+              ta.value = text;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+
+            setCopyState("copied");
+            window.setTimeout(() => setCopyState("idle"), 1200);
+          } catch {
+            setCopyState("error");
+            window.setTimeout(() => setCopyState("idle"), 1600);
+          }
+        }
+
+        function handleClear() {
+          setText("");
+        }
+
+        const copyLabel =
+          copyState === "copied" ? "Copied" : copyState === "error" ? "Copy failed" : "Copy Text";
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Word Counter</h1>
+                    <p className="text-slate-600 mt-2">
+                      This free word counter tool helps you count words, characters, and sentences instantly. Perfect for writers, students, and developers.
+                    </p>
+                    <p className="text-slate-600 mt-2">
+                      Paste or type text below to see live word, character, and sentence counts.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopy}
+                      className={UI.btnPrimary}
+                      disabled={text.length === 0}
+                    >
+                      {copyLabel}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClear}
+                      className={UI.btnSecondary}
+                      disabled={text.length === 0}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className="mt-5">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-word-counter">
+                    Your text
+                  </label>
+                  <textarea
+                    id="clipdrop-word-counter"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    className={cx(
+                      UI.textarea,
+                      "min-h-[220px] sm:min-h-[280px]"
+                    )}
+                    placeholder="Start typing…"
+                  />
+                </div>
+
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <Stat label="Words" value={stats.words} />
+                  <Stat label="Characters" value={stats.charCountWithSpaces} />
+                  <Stat label="Characters (no spaces)" value={stats.charCountWithoutSpaces} />
+                  <Stat label="Sentences" value={stats.sentences} />
+                </div>
+
+                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-slate-500">Estimated reading time</div>
+                    <div className="mt-1 text-sm text-slate-700">
+                      {stats.readingTimeMinutes} min (200 wpm)
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-500">Live updating</div>
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function getRandomInt(maxExclusive) {
+        const max = Number(maxExclusive);
+        if (!Number.isFinite(max) || max <= 0) return 0;
+
+        // Prefer cryptographic randomness when available.
+        if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+          const buf = new Uint32Array(1);
+          // Rejection sampling to avoid modulo bias.
+          const limit = Math.floor(0xffffffff / max) * max;
+          let x = 0;
+          do {
+            crypto.getRandomValues(buf);
+            x = buf[0];
+          } while (x >= limit);
+          return x % max;
+        }
+
+        return Math.floor(Math.random() * max);
+      }
+
+      function shuffleInPlace(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = getRandomInt(i + 1);
+          const tmp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tmp;
+        }
+        return arr;
+      }
+
+      function strengthLabel(length, varietyCount) {
+        // Simple heuristic: length + number of enabled sets.
+        if (length >= 16 && varietyCount >= 3) return "Strong";
+        if (length >= 10 && varietyCount >= 2) return "Medium";
+        return "Weak";
+      }
+
+      function PasswordGenerator() {
+        const [length, setLength] = useState(16);
+        const [useUpper, setUseUpper] = useState(true);
+        const [useLower, setUseLower] = useState(true);
+        const [useNumbers, setUseNumbers] = useState(true);
+        const [useSymbols, setUseSymbols] = useState(false);
+
+        const [password, setPassword] = useState("");
+        const [copyState, setCopyState] = useState("idle");
+
+        const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const LOWER = "abcdefghijklmnopqrstuvwxyz";
+        const NUMS = "0123456789";
+        const SYMS = "!@#$%^&*";
+
+        const enabledSets = useMemo(() => {
+          const sets = [];
+          if (useUpper) sets.push({ name: "Uppercase", chars: UPPER });
+          if (useLower) sets.push({ name: "Lowercase", chars: LOWER });
+          if (useNumbers) sets.push({ name: "Numbers", chars: NUMS });
+          if (useSymbols) sets.push({ name: "Symbols", chars: SYMS });
+          return sets;
+        }, [useUpper, useLower, useNumbers, useSymbols]);
+
+        const canGenerate = enabledSets.length > 0;
+        const varietyCount = enabledSets.length;
+        const strength = strengthLabel(length, varietyCount);
+
+        function generate() {
+          if (!canGenerate) return;
+
+          const allChars = enabledSets.map((s) => s.chars).join("");
+          if (!allChars) return;
+
+          const n = Math.max(4, Math.min(32, Number(length) || 16));
+          const out = [];
+
+          // Ensure at least one character from each selected set when possible.
+          if (n >= enabledSets.length) {
+            for (const s of enabledSets) {
+              out.push(s.chars[getRandomInt(s.chars.length)]);
+            }
+          }
+
+          while (out.length < n) {
+            out.push(allChars[getRandomInt(allChars.length)]);
+          }
+
+          shuffleInPlace(out);
+          setPassword(out.join(""));
+          setCopyState("idle");
+        }
+
+        async function handleCopy() {
+          try {
+            if (!password) return;
+            if (navigator?.clipboard?.writeText) {
+              await navigator.clipboard.writeText(password);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = password;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            setCopyState("copied");
+            window.setTimeout(() => setCopyState("idle"), 1200);
+          } catch {
+            setCopyState("error");
+            window.setTimeout(() => setCopyState("idle"), 1600);
+          }
+        }
+
+        const copyLabel =
+          copyState === "copied" ? "Copied" : copyState === "error" ? "Copy failed" : "Copy";
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Password Generator</h1>
+                    <p className="text-slate-600 mt-2">
+                      Generate strong passwords instantly with this free password generator. Customize length and character options in seconds.
+                    </p>
+                    <p className="text-slate-600 mt-2">
+                      Choose your settings, then generate a password.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={generate}
+                      className={cx(UI.btnPrimary, !canGenerate ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={!canGenerate}
+                    >
+                      Generate Password
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className={UI.subCard}>
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="text-sm font-semibold text-slate-800">Password length</div>
+                        <div className="text-xs text-slate-500 mt-1">Min 4, max 32</div>
+                      </div>
+                      <div className="text-sm font-semibold text-slate-900 tabular-nums">{length}</div>
+                    </div>
+
+                    <input
+                      type="range"
+                      min="4"
+                      max="32"
+                      value={length}
+                      onChange={(e) => setLength(Number(e.target.value))}
+                      className="mt-3 w-full accent-blue-600"
+                      aria-label="Password length"
+                    />
+
+                    <div className="mt-5">
+                      <div className="text-sm font-semibold text-slate-800">Options</div>
+                      <div className="mt-3 space-y-2">
+                        <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 cursor-pointer hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={useUpper}
+                            onChange={(e) => setUseUpper(e.target.checked)}
+                            className="h-4 w-4"
+                          />
+                          <span className="text-sm text-slate-800">Include Uppercase (A-Z)</span>
+                        </label>
+                        <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 cursor-pointer hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={useLower}
+                            onChange={(e) => setUseLower(e.target.checked)}
+                            className="h-4 w-4"
+                          />
+                          <span className="text-sm text-slate-800">Include Lowercase (a-z)</span>
+                        </label>
+                        <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 cursor-pointer hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={useNumbers}
+                            onChange={(e) => setUseNumbers(e.target.checked)}
+                            className="h-4 w-4"
+                          />
+                          <span className="text-sm text-slate-800">Include Numbers (0-9)</span>
+                        </label>
+                        <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 cursor-pointer hover:bg-slate-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={useSymbols}
+                            onChange={(e) => setUseSymbols(e.target.checked)}
+                            className="h-4 w-4"
+                          />
+                          <span className="text-sm text-slate-800">Include Symbols (!@#$%^&*)</span>
+                        </label>
+                      </div>
+
+                      {!canGenerate ? (
+                        <div className="mt-3 text-sm text-amber-700">
+                          Select at least one option to generate a password.
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className={UI.subCard}>
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="text-sm font-semibold text-slate-800">Generated password</div>
+                        <div className="text-xs text-slate-500 mt-1">
+                          Strength: <span className="text-slate-700 font-medium">{strength}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleCopy}
+                        className={cx(
+                          UI.btnSecondary,
+                          !password ? "opacity-60 cursor-not-allowed" : ""
+                        )}
+                        disabled={!password}
+                      >
+                        {copyLabel}
+                      </button>
+                    </div>
+
+                    <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
+                      <div className={cx("font-mono text-sm break-all", password ? "text-slate-900" : "text-slate-400")}>
+                        {password || "Click “Generate Password” to create one."}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 text-xs text-slate-500">
+                      Tip: Use a longer password with more character types.
+                    </div>
+                  </div>
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function extractYouTubeVideoId(input) {
+        const raw = String(input ?? "").trim();
+        if (!raw) return null;
+
+        // Accept direct IDs (11 chars) as a convenience.
+        if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return raw;
+
+        let url;
+        try {
+          url = new URL(raw);
+        } catch {
+          // Try adding protocol if user pasted without it.
+          try {
+            url = new URL(`https://${raw}`);
+          } catch {
+            return null;
+          }
+        }
+
+        const host = url.hostname.replace(/^www\./, "").toLowerCase();
+        const path = url.pathname || "";
+
+        let id = null;
+
+        if (host === "youtu.be") {
+          // https://youtu.be/VIDEOID
+          const seg = path.split("/").filter(Boolean)[0];
+          id = seg || null;
+        } else if (host.endsWith("youtube.com")) {
+          // https://www.youtube.com/watch?v=VIDEOID
+          if (path === "/watch") {
+            id = url.searchParams.get("v");
+          }
+          // https://www.youtube.com/embed/VIDEOID
+          if (!id && path.startsWith("/embed/")) {
+            id = path.split("/").filter(Boolean)[1] || null;
+          }
+          // https://www.youtube.com/shorts/VIDEOID
+          if (!id && path.startsWith("/shorts/")) {
+            id = path.split("/").filter(Boolean)[1] || null;
+          }
+        }
+
+        if (!id) return null;
+        if (!/^[a-zA-Z0-9_-]{11}$/.test(id)) return null;
+        return id;
+      }
+
+      function YouTubeThumbnailDownloader() {
+        const [urlInput, setUrlInput] = useState("");
+        const [videoId, setVideoId] = useState(null);
+        const [error, setError] = useState("");
+        const [copyKey, setCopyKey] = useState(null);
+        const [broken, setBroken] = useState(() => ({}));
+
+        const qualities = useMemo(
+          () => [
+            { key: "maxresdefault", label: "Max Resolution", file: "maxresdefault.jpg" },
+            { key: "hqdefault", label: "High Quality", file: "hqdefault.jpg" },
+            { key: "mqdefault", label: "Medium Quality", file: "mqdefault.jpg" },
+            { key: "default", label: "Default", file: "default.jpg" },
+          ],
+          []
+        );
+
+        const thumbnails = useMemo(() => {
+          if (!videoId) return [];
+          return qualities.map((q) => ({
+            ...q,
+            url: `https://img.youtube.com/vi/${videoId}/${q.file}`,
+          }));
+        }, [videoId, qualities]);
+
+        function onGet() {
+          const id = extractYouTubeVideoId(urlInput);
+          if (!id) {
+            setVideoId(null);
+            setBroken({});
+            setError(
+              "Please enter a valid YouTube URL (e.g., https://www.youtube.com/watch?v=VIDEOID or https://youtu.be/VIDEOID)."
+            );
+            return;
+          }
+          setError("");
+          setBroken({});
+          setVideoId(id);
+        }
+
+        async function copyLink(thumbUrl, key) {
+          try {
+            if (navigator?.clipboard?.writeText) {
+              await navigator.clipboard.writeText(thumbUrl);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = thumbUrl;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            setCopyKey(key);
+            window.setTimeout(() => setCopyKey(null), 1200);
+          } catch {
+            setCopyKey("error:" + key);
+            window.setTimeout(() => setCopyKey(null), 1600);
+          }
+        }
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">YouTube Thumbnail Downloader</h1>
+                    <p className="text-slate-600 mt-2">
+                      Download YouTube thumbnails in HD quality instantly. Just paste your video link and get all sizes.
+                    </p>
+                    <p className="text-slate-600 mt-2">Paste a YouTube video URL to get thumbnail images in multiple qualities.</p>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className={cx(UI.subCard, "mt-6")}>
+                  <label className="block text-sm font-semibold text-slate-700" htmlFor="clipdrop-yt-url">
+                    YouTube video URL
+                  </label>
+                  <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                    <input
+                      id="clipdrop-yt-url"
+                      type="text"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      placeholder="https://www.youtube.com/watch?v=VIDEOID"
+                      className={cx(UI.input, "flex-1")}
+                    />
+                    <button
+                      type="button"
+                      onClick={onGet}
+                      className={UI.btnPrimary}
+                      disabled={urlInput.trim().length === 0}
+                    >
+                      Get Thumbnails
+                    </button>
+                  </div>
+
+                  {error ? <div className="mt-3 text-sm text-rose-600">{error}</div> : null}
+
+                  {videoId ? (
+                    <div className="mt-3 text-xs text-slate-500">
+                      Video ID: <span className="text-slate-300">{videoId}</span>
+                    </div>
+                  ) : null}
+                </div>
+
+                {videoId ? (
+                  <div className="mt-6">
+                    <div className="flex items-end justify-between gap-4 mb-4">
+                      <div>
+                        <div className="text-sm font-semibold text-slate-800">Thumbnails</div>
+                        <div className="text-xs text-slate-500 mt-1">Click Download to open/save the image.</div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {thumbnails.map((t) => {
+                        const isBroken = !!broken[t.key];
+                        const copied = copyKey === t.key;
+                        const copyFailed = copyKey === "error:" + t.key;
+
+                        return (
+                          <div
+                            key={t.key}
+                            className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden transition-shadow duration-200 hover:shadow-md"
+                          >
+                            <div className="p-4 border-b border-slate-200">
+                              <div className="text-sm font-semibold text-slate-900">{t.label}</div>
+                              <div className="text-xs text-slate-500 mt-1">{t.file}</div>
+                            </div>
+
+                            <div className="bg-slate-100">
+                              {!isBroken ? (
+                                <img
+                                  src={t.url}
+                                  alt={`${t.label} thumbnail`}
+                                  className="w-full aspect-video object-cover"
+                                  loading="lazy"
+                                  onError={() => setBroken((prev) => ({ ...prev, [t.key]: true }))}
+                                />
+                              ) : (
+                                <div className="w-full aspect-video flex items-center justify-center text-sm text-slate-500">
+                                  Preview not available
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="p-4 flex items-center gap-2">
+                              <a
+                                href={t.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                download={`${videoId}-${t.key}.jpg`}
+                                className={cx(UI.btnPrimary, "px-3 py-2")}
+                              >
+                                Download
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => copyLink(t.url, t.key)}
+                                className={cx(UI.btnSecondary, "px-3 py-2")}
+                              >
+                                {copied ? "Copied" : copyFailed ? "Copy failed" : "Copy Image Link"}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function JsonFormatterValidator() {
+        const [input, setInput] = useState("");
+        const [output, setOutput] = useState("");
+        const [error, setError] = useState("");
+        const [copyState, setCopyState] = useState("idle");
+
+        function clearAll() {
+          setInput("");
+          setOutput("");
+          setError("");
+          setCopyState("idle");
+        }
+
+        function formatJson() {
+          try {
+            setError("");
+            const parsed = JSON.parse(input);
+            setOutput(JSON.stringify(parsed, null, 2));
+            setCopyState("idle");
+          } catch (e) {
+            const msg = e && typeof e.message === "string" ? e.message : "Invalid JSON.";
+            setError(msg);
+            setOutput("");
+            setCopyState("idle");
+          }
+        }
+
+        function minifyJson() {
+          try {
+            setError("");
+            const parsed = JSON.parse(input);
+            setOutput(JSON.stringify(parsed));
+            setCopyState("idle");
+          } catch (e) {
+            const msg = e && typeof e.message === "string" ? e.message : "Invalid JSON.";
+            setError(msg);
+            setOutput("");
+            setCopyState("idle");
+          }
+        }
+
+        async function copyOutput() {
+          try {
+            if (!output) return;
+            if (navigator?.clipboard?.writeText) {
+              await navigator.clipboard.writeText(output);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = output;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            setCopyState("copied");
+            window.setTimeout(() => setCopyState("idle"), 1200);
+          } catch {
+            setCopyState("error");
+            window.setTimeout(() => setCopyState("idle"), 1600);
+          }
+        }
+
+        const copyLabel =
+          copyState === "copied" ? "Copied" : copyState === "error" ? "Copy failed" : "Copy";
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">JSON Formatter &amp; Validator</h1>
+                    <p className="text-slate-600 mt-2">
+                      Format and validate JSON instantly with this free online JSON formatter. Clean, readable, and fast.
+                    </p>
+                    <p className="text-slate-600 mt-2">Format (pretty-print) or minify JSON safely.</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={formatJson}
+                      className={UI.btnPrimary}
+                      disabled={input.trim().length === 0}
+                    >
+                      Format JSON
+                    </button>
+                    <button
+                      type="button"
+                      onClick={minifyJson}
+                      className={UI.btnSecondary}
+                      disabled={input.trim().length === 0}
+                    >
+                      Minify JSON
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearAll}
+                      className={UI.btnSecondary}
+                      disabled={input.length === 0 && output.length === 0 && !error}
+                    >
+                      Clear
+                    </button>
+                    <button
+                      type="button"
+                      onClick={copyOutput}
+                      className={cx(
+                        UI.btnSecondary,
+                        !output ? "opacity-60 cursor-not-allowed" : ""
+                      )}
+                      disabled={!output}
+                    >
+                      {copyLabel}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className={UI.subCard}>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-json-input">
+                      JSON input
+                    </label>
+                    <textarea
+                      id="clipdrop-json-input"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      className={cx(
+                        UI.textarea,
+                        "min-h-[260px] font-mono text-sm"
+                      )}
+                      placeholder='{ "hello": "world" }'
+                    />
+
+                    {error ? (
+                      <div className="mt-3 text-sm text-rose-600">
+                        <span className="font-semibold">Invalid JSON:</span> {error}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className={UI.subCard}>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <div className="text-sm font-semibold text-slate-800">Output</div>
+                      <div className="text-xs text-slate-500">Monospace • Scrollable</div>
+                    </div>
+
+                    <textarea
+                      value={output}
+                      readOnly
+                      className={cx(
+                        UI.textarea,
+                        "min-h-[260px] font-mono text-sm",
+                        output ? "text-slate-900" : "text-slate-400",
+                        "focus:outline-none"
+                      )}
+                      placeholder="Formatted / minified JSON will appear here"
+                    />
+                  </div>
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function toTitleCase(text) {
+        const s = String(text ?? "");
+        // Capitalize first letter of each word, preserve spacing/punctuation.
+        return s.replace(/\b([A-Za-z])([A-Za-z]*)\b/g, (_, first, rest) => {
+          return String(first).toUpperCase() + String(rest).toLowerCase();
+        });
+      }
+
+      function toCamelCase(text) {
+        const s = String(text ?? "");
+        const parts = s.trim().split(/[^A-Za-z0-9]+/).filter(Boolean);
+        if (parts.length === 0) return "";
+        const first = parts[0].toLowerCase();
+        const rest = parts.slice(1).map((p) => {
+          const lower = p.toLowerCase();
+          return lower.charAt(0).toUpperCase() + lower.slice(1);
+        });
+        return [first, ...rest].join("");
+      }
+
+      function TextCaseConverter() {
+        const [text, setText] = useState("");
+        const [copyState, setCopyState] = useState("idle");
+
+        function applyTransform(fn) {
+          setText((prev) => fn(prev));
+          setCopyState("idle");
+        }
+
+        function clear() {
+          setText("");
+          setCopyState("idle");
+        }
+
+        async function copy() {
+          try {
+            if (!text) return;
+            if (navigator?.clipboard?.writeText) {
+              await navigator.clipboard.writeText(text);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = text;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            setCopyState("copied");
+            window.setTimeout(() => setCopyState("idle"), 1200);
+          } catch {
+            setCopyState("error");
+            window.setTimeout(() => setCopyState("idle"), 1600);
+          }
+        }
+
+        const copyLabel =
+          copyState === "copied" ? "Copied" : copyState === "error" ? "Copy failed" : "Copy";
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Text Case Converter</h1>
+                    <p className="text-slate-600 mt-2">
+                      Convert text to uppercase, lowercase, title case, or camelCase instantly with this free online text case converter.
+                    </p>
+                    <p className="text-slate-600 mt-2">Convert text casing using the buttons below.</p>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => applyTransform((s) => String(s).toUpperCase())}
+                      className={cx(UI.btnPrimary, !text ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={!text}
+                    >
+                      UPPERCASE
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyTransform((s) => String(s).toLowerCase())}
+                      className={cx(UI.btnSecondary, !text ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={!text}
+                    >
+                      lowercase
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyTransform(toTitleCase)}
+                      className={cx(UI.btnSecondary, !text ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={!text}
+                    >
+                      Title Case
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyTransform(toCamelCase)}
+                      className={cx(UI.btnSecondary, !text ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={!text}
+                    >
+                      camelCase
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clear}
+                      className={cx(UI.btnSecondary, !text ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={!text}
+                    >
+                      Clear
+                    </button>
+                    <button
+                      type="button"
+                      onClick={copy}
+                      className={cx(
+                        UI.btnSecondary,
+                        !text ? "opacity-60 cursor-not-allowed" : ""
+                      )}
+                      disabled={!text}
+                    >
+                      {copyLabel}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-text-case">
+                    Text
+                  </label>
+                  <textarea
+                    id="clipdrop-text-case"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    className={cx(
+                      UI.textarea,
+                      "min-h-[260px] sm:min-h-[320px]"
+                    )}
+                    placeholder="Type or paste text here…"
+                  />
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function clamp01(x) {
+        const n = Number(x);
+        if (!Number.isFinite(n)) return 0;
+        return Math.min(1, Math.max(0, n));
+      }
+
+      function hexToRgb(hex) {
+        const raw = String(hex ?? "").trim();
+        const m = raw.match(/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+        if (!m) return null;
+        let h = m[1];
+        if (h.length === 3) {
+          h = h
+            .split("")
+            .map((c) => c + c)
+            .join("");
+        }
+        const r = parseInt(h.slice(0, 2), 16);
+        const g = parseInt(h.slice(2, 4), 16);
+        const b = parseInt(h.slice(4, 6), 16);
+        if ([r, g, b].some((v) => Number.isNaN(v))) return null;
+        return { r, g, b };
+      }
+
+      function rgbToHsl({ r, g, b }) {
+        const rr = clamp01(r / 255);
+        const gg = clamp01(g / 255);
+        const bb = clamp01(b / 255);
+
+        const max = Math.max(rr, gg, bb);
+        const min = Math.min(rr, gg, bb);
+        const delta = max - min;
+
+        let h = 0;
+        let s = 0;
+        const l = (max + min) / 2;
+
+        if (delta !== 0) {
+          s = delta / (1 - Math.abs(2 * l - 1));
+          switch (max) {
+            case rr:
+              h = ((gg - bb) / delta) % 6;
+              break;
+            case gg:
+              h = (bb - rr) / delta + 2;
+              break;
+            default:
+              h = (rr - gg) / delta + 4;
+              break;
+          }
+          h = Math.round(h * 60);
+          if (h < 0) h += 360;
+        }
+
+        return {
+          h,
+          s: Math.round(s * 100),
+          l: Math.round(l * 100),
+        };
+      }
+
+      function ColorPickerHexConverter() {
+        const [hex, setHex] = useState("#3b82f6");
+        const [copyKey, setCopyKey] = useState(null);
+
+        const rgb = useMemo(() => hexToRgb(hex) || { r: 0, g: 0, b: 0 }, [hex]);
+        const hsl = useMemo(() => rgbToHsl(rgb), [rgb]);
+
+        const hexValue = hex.toLowerCase();
+        const rgbValue = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        const hslValue = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+
+        async function copyText(value, key) {
+          try {
+            if (navigator?.clipboard?.writeText) {
+              await navigator.clipboard.writeText(value);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = value;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            setCopyKey(key);
+            window.setTimeout(() => setCopyKey(null), 1200);
+          } catch {
+            setCopyKey("error:" + key);
+            window.setTimeout(() => setCopyKey(null), 1600);
+          }
+        }
+
+        function CopyButton({ k, onClick, children }) {
+          const copied = copyKey === k;
+          const failed = copyKey === "error:" + k;
+          return (
+            <button
+              type="button"
+              onClick={onClick}
+              className={cx(
+                "inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold transition",
+                "bg-white text-slate-900 border border-slate-300 hover:bg-slate-50",
+                "focus:outline-none focus:ring-4 focus:ring-slate-200"
+              )}
+            >
+              {copied ? "Copied" : failed ? "Copy failed" : children}
+            </button>
+          );
+        }
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Color Picker &amp; HEX Converter</h1>
+                    <p className="text-slate-600 mt-2">
+                      Pick a color and instantly copy HEX, RGB, and HSL values with this free online color picker.
+                    </p>
+                    <p className="text-slate-600 mt-2">Pick a color and copy its HEX, RGB, or HSL values.</p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                      <span className="text-sm font-semibold text-slate-700">Color</span>
+                      <input
+                        type="color"
+                        value={hex}
+                        onChange={(e) => {
+                          setHex(e.target.value);
+                          setCopyKey(null);
+                        }}
+                        onInput={(e) => {
+                          setHex(e.target.value);
+                          setCopyKey(null);
+                        }}
+                        className="h-10 w-10 rounded-lg border border-slate-200 bg-white"
+                        aria-label="Pick a color"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className={UI.subCard}>
+                    <div className="text-sm font-semibold text-slate-800">Preview</div>
+                    <div
+                      className="mt-3 rounded-2xl border border-slate-200 h-48 sm:h-64"
+                      style={{ backgroundColor: hexValue }}
+                      aria-label="Selected color preview"
+                    />
+                    <div className="mt-3 text-xs text-slate-500">
+                      Selected: <span className="text-slate-700 font-mono">{hexValue}</span>
+                    </div>
+                  </div>
+
+                  <div className={UI.subCard}>
+                    <div className="text-sm font-semibold text-slate-800">Values</div>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="rounded-xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-xs uppercase tracking-wide text-slate-500">HEX</div>
+                          <div className="mt-1 font-mono text-sm text-slate-900">{hexValue}</div>
+                        </div>
+                        <CopyButton k="hex" onClick={() => copyText(hexValue, "hex")}>Copy HEX</CopyButton>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-xs uppercase tracking-wide text-slate-500">RGB</div>
+                          <div className="mt-1 font-mono text-sm text-slate-900">{rgbValue}</div>
+                        </div>
+                        <CopyButton k="rgb" onClick={() => copyText(rgbValue, "rgb")}>Copy RGB</CopyButton>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-xs uppercase tracking-wide text-slate-500">HSL</div>
+                          <div className="mt-1 font-mono text-sm text-slate-900">{hslValue}</div>
+                        </div>
+                        <CopyButton k="hsl" onClick={() => copyText(hslValue, "hsl")}>Copy HSL</CopyButton>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function daysInMonthUTC(year, monthIndex) {
+        return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+      }
+
+      function toUtcDateFromParts(parts) {
+        return new Date(Date.UTC(parts.y, parts.m, parts.d));
+      }
+
+      function addYearsToParts(parts, yearsToAdd) {
+        const y = parts.y + yearsToAdd;
+        const m = parts.m;
+        const maxDay = daysInMonthUTC(y, m);
+        const d = Math.min(parts.d, maxDay);
+        return { y, m, d };
+      }
+
+      function addMonthsToParts(parts, monthsToAdd) {
+        const total = parts.m + monthsToAdd;
+        const y = parts.y + Math.floor(total / 12);
+        const m = ((total % 12) + 12) % 12;
+        const maxDay = daysInMonthUTC(y, m);
+        const d = Math.min(parts.d, maxDay);
+        return { y, m, d };
+      }
+
+      function parseDateInputToParts(value) {
+        const s = String(value ?? "").trim();
+        const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return null;
+        const y = Number(m[1]);
+        const mo = Number(m[2]);
+        const d = Number(m[3]);
+        if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return null;
+        if (mo < 1 || mo > 12) return null;
+        const monthIndex = mo - 1;
+        const maxDay = daysInMonthUTC(y, monthIndex);
+        if (d < 1 || d > maxDay) return null;
+        return { y, m: monthIndex, d };
+      }
+
+      function calculateAgeParts(dobParts, todayParts) {
+        const dobDate = toUtcDateFromParts(dobParts);
+        const todayDate = toUtcDateFromParts(todayParts);
+        if (dobDate.getTime() > todayDate.getTime()) {
+          return { error: "Date of birth cannot be in the future." };
+        }
+
+        let years = todayParts.y - dobParts.y;
+        let anchor = addYearsToParts(dobParts, years);
+        if (toUtcDateFromParts(anchor).getTime() > todayDate.getTime()) {
+          years -= 1;
+          anchor = addYearsToParts(dobParts, years);
+        }
+
+        // Months remaining after years.
+        let months = (todayParts.y - anchor.y) * 12 + (todayParts.m - anchor.m);
+        let anchorMonth = addMonthsToParts(anchor, months);
+        if (toUtcDateFromParts(anchorMonth).getTime() > todayDate.getTime()) {
+          months -= 1;
+          anchorMonth = addMonthsToParts(anchor, months);
+        }
+
+        // Days remaining after years + months.
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const days = Math.round((todayDate.getTime() - toUtcDateFromParts(anchorMonth).getTime()) / msPerDay);
+
+        return { years, months, days, error: "" };
+      }
+
+      function AgeCalculator() {
+        const [dob, setDob] = useState("");
+        const [result, setResult] = useState(null);
+        const [error, setError] = useState("");
+
+        function onCalculate() {
+          if (!dob) {
+            setResult(null);
+            setError("Please select your date of birth.");
+            return;
+          }
+
+          const dobParts = parseDateInputToParts(dob);
+          if (!dobParts) {
+            setResult(null);
+            setError("Please enter a valid date of birth.");
+            return;
+          }
+
+          const now = new Date();
+          const todayParts = {
+            y: now.getFullYear(),
+            m: now.getMonth(),
+            d: now.getDate(),
+          };
+
+          const computed = calculateAgeParts(dobParts, todayParts);
+          if (computed.error) {
+            setResult(null);
+            setError(computed.error);
+            return;
+          }
+
+          setError("");
+          setResult({ years: computed.years, months: computed.months, days: computed.days });
+        }
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Age Calculator</h1>
+                    <p className="text-slate-600 mt-2">
+                      Calculate your age instantly in years, months, and days with this free online age calculator.
+                    </p>
+                    <p className="text-slate-600 mt-2">Calculate your exact age in years, months, and days.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={onCalculate}
+                      className={UI.btnPrimary}
+                    >
+                      Calculate Age
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className={cx(UI.subCard, "mt-6")}>
+                  <label className="block text-sm font-semibold text-slate-700" htmlFor="clipdrop-dob">
+                    Date of Birth
+                  </label>
+                  <div className="mt-2 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                    <input
+                      id="clipdrop-dob"
+                      type="date"
+                      value={dob}
+                      onChange={(e) => {
+                        setDob(e.target.value);
+                        setError("");
+                      }}
+                      className={cx(UI.input, "w-auto")}
+                    />
+                    <div className="text-xs text-slate-500">Uses today’s date on your device.</div>
+                  </div>
+
+                  {error ? <div className="mt-3 text-sm text-rose-600">{error}</div> : null}
+                </div>
+
+                {result ? (
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <Stat label="Years" value={result.years} />
+                    <Stat label="Months" value={result.months} />
+                    <Stat label="Days" value={result.days} />
+                  </div>
+                ) : null}
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function formatUsd(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return "$0.00";
+        try {
+          return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(n);
+        } catch {
+          const fixed = n.toFixed(2);
+          return `$${fixed}`;
+        }
+      }
+
+      function SalaryToHourlyCalculator() {
+        const [annualSalary, setAnnualSalary] = useState("");
+        const [hoursPerWeek, setHoursPerWeek] = useState(40);
+        const [weeksPerYear, setWeeksPerYear] = useState(52);
+        const [error, setError] = useState("");
+        const [result, setResult] = useState(null);
+
+        function calculate() {
+          const salary = Number(annualSalary);
+          const hpw = Number(hoursPerWeek);
+          const wpy = Number(weeksPerYear);
+
+          if (!annualSalary || !Number.isFinite(salary) || salary <= 0) {
+            setResult(null);
+            setError("Please enter a valid annual salary.");
+            return;
+          }
+          if (!Number.isFinite(hpw) || hpw <= 0) {
+            setResult(null);
+            setError("Hours per week must be a valid number greater than 0.");
+            return;
+          }
+          if (!Number.isFinite(wpy) || wpy <= 0) {
+            setResult(null);
+            setError("Weeks per year must be a valid number greater than 0.");
+            return;
+          }
+
+          const hourly = salary / (hpw * wpy);
+          const daily = hourly * 8;
+          const weekly = salary / wpy;
+          const monthly = salary / 12;
+
+          setError("");
+          setResult({ hourly, daily, weekly, monthly });
+        }
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Salary to Hourly Calculator</h1>
+                    <p className="text-slate-600 mt-2">
+                      Convert an annual salary to hourly, daily, weekly, and monthly pay instantly with this free salary calculator.
+                    </p>
+                    <p className="text-slate-600 mt-2">Convert an annual salary into hourly, daily, weekly, and monthly amounts.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={calculate}
+                      className={UI.btnPrimary}
+                    >
+                      Calculate
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className={cx(UI.subCard, "lg:col-span-1")}>
+                    <div className="text-sm font-semibold text-slate-800">Inputs</div>
+
+                    <div className="mt-4 space-y-3">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-salary">
+                          Annual Salary ($)
+                        </label>
+                        <input
+                          id="clipdrop-salary"
+                          type="number"
+                          inputMode="decimal"
+                          min="0"
+                          step="0.01"
+                          value={annualSalary}
+                          onChange={(e) => {
+                            setAnnualSalary(e.target.value);
+                            setError("");
+                          }}
+                          className={UI.input}
+                          placeholder="60000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-hours">
+                          Hours per week
+                        </label>
+                        <input
+                          id="clipdrop-hours"
+                          type="number"
+                          inputMode="decimal"
+                          min="1"
+                          step="0.5"
+                          value={hoursPerWeek}
+                          onChange={(e) => {
+                            setHoursPerWeek(e.target.value);
+                            setError("");
+                          }}
+                          className={UI.input}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-weeks">
+                          Weeks per year
+                        </label>
+                        <input
+                          id="clipdrop-weeks"
+                          type="number"
+                          inputMode="numeric"
+                          min="1"
+                          step="1"
+                          value={weeksPerYear}
+                          onChange={(e) => {
+                            setWeeksPerYear(e.target.value);
+                            setError("");
+                          }}
+                          className={UI.input}
+                        />
+                      </div>
+
+                      {error ? <div className="text-sm text-rose-600">{error}</div> : null}
+                    </div>
+                  </div>
+
+                  <div className={cx(UI.subCard, "lg:col-span-2")}>
+                    <div className="text-sm font-semibold text-slate-800">Results</div>
+                    <div className="text-xs text-slate-500 mt-1">Daily assumes 8 hours/day.</div>
+
+                    {result ? (
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <Stat label="Hourly wage" value={formatUsd(result.hourly)} />
+                        <Stat label="Daily wage" value={formatUsd(result.daily)} />
+                        <Stat label="Weekly salary" value={formatUsd(result.weekly)} />
+                        <Stat label="Monthly salary" value={formatUsd(result.monthly)} />
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500">
+                        Enter your annual salary and click Calculate.
+                      </div>
+                    )}
+                  </div>
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function RandomNameGenerator() {
+        const [gender, setGender] = useState("both");
+        const [fullName, setFullName] = useState("");
+        const [copyState, setCopyState] = useState("idle");
+
+        const maleFirstNames = useMemo(
+          () => [
+            "Liam",
+            "Noah",
+            "Oliver",
+            "Elijah",
+            "James",
+            "William",
+            "Benjamin",
+            "Lucas",
+            "Henry",
+            "Alexander",
+            "Ethan",
+            "Daniel",
+            "Matthew",
+            "Samuel",
+            "David",
+            "Joseph",
+            "Jack",
+            "Leo",
+          ],
+          []
+        );
+
+        const femaleFirstNames = useMemo(
+          () => [
+            "Olivia",
+            "Emma",
+            "Ava",
+            "Sophia",
+            "Isabella",
+            "Mia",
+            "Amelia",
+            "Harper",
+            "Evelyn",
+            "Abigail",
+            "Emily",
+            "Ella",
+            "Scarlett",
+            "Grace",
+            "Chloe",
+            "Victoria",
+            "Luna",
+            "Zoe",
+          ],
+          []
+        );
+
+        const lastNames = useMemo(
+          () => [
+            "Smith",
+            "Johnson",
+            "Williams",
+            "Brown",
+            "Jones",
+            "Garcia",
+            "Miller",
+            "Davis",
+            "Rodriguez",
+            "Martinez",
+            "Hernandez",
+            "Lopez",
+            "Gonzalez",
+            "Wilson",
+            "Anderson",
+            "Thomas",
+            "Taylor",
+            "Moore",
+            "Jackson",
+            "Martin",
+          ],
+          []
+        );
+
+        function pick(arr) {
+          if (!arr || arr.length === 0) return "";
+          return arr[getRandomInt(arr.length)];
+        }
+
+        function generate() {
+          let pickGender = gender;
+          if (pickGender === "both") {
+            pickGender = getRandomInt(2) === 0 ? "male" : "female";
+          }
+
+          const first = pickGender === "male" ? pick(maleFirstNames) : pick(femaleFirstNames);
+          const last = pick(lastNames);
+
+          const name = [first, last].filter(Boolean).join(" ");
+          setFullName(name);
+          setCopyState("idle");
+        }
+
+        async function copy() {
+          try {
+            if (!fullName) return;
+            if (navigator?.clipboard?.writeText) {
+              await navigator.clipboard.writeText(fullName);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = fullName;
+              ta.setAttribute("readonly", "");
+              ta.style.position = "absolute";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            setCopyState("copied");
+            window.setTimeout(() => setCopyState("idle"), 1200);
+          } catch {
+            setCopyState("error");
+            window.setTimeout(() => setCopyState("idle"), 1600);
+          }
+        }
+
+        const copyLabel =
+          copyState === "copied" ? "Copied" : copyState === "error" ? "Copy failed" : "Copy";
+
+        return (
+          <Page>
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Random Name Generator</h1>
+                    <p className="text-slate-600 mt-2">
+                      Generate random names instantly with this free online random name generator. Great for demos, testing, and placeholders.
+                    </p>
+                    <p className="text-slate-600 mt-2">Generate random names for demos, placeholders, and testing.</p>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className={cx(UI.subCard, "mt-6")}>
+                  <div className="text-sm font-semibold text-slate-800">Name type</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[
+                      { key: "male", label: "Male" },
+                      { key: "female", label: "Female" },
+                      { key: "both", label: "Both" },
+                    ].map((opt) => {
+                      const active = gender === opt.key;
+                      return (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() => setGender(opt.key)}
+                          className={cx(
+                            "inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition",
+                            active
+                              ? "bg-blue-600 text-white hover:bg-blue-500"
+                              : "bg-white text-slate-900 border border-slate-300 hover:bg-slate-50"
+                          )}
+                          aria-pressed={active}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={generate}
+                      className={UI.btnPrimary}
+                    >
+                      Generate Name
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={copy}
+                      disabled={!fullName}
+                      className={cx(
+                        UI.btnSecondary,
+                        !fullName ? "opacity-60 cursor-not-allowed" : ""
+                      )}
+                    >
+                      {copyLabel}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+                  <div className={cx("text-2xl sm:text-3xl font-semibold tracking-tight", fullName ? "text-slate-900" : "text-slate-400")}>
+                    {fullName || "Click “Generate Name”"}
+                  </div>
+                  <div className="mt-2 text-xs text-slate-500">Predefined list • No API</div>
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function InvoiceGenerator() {
+        const [yourName, setYourName] = useState("");
+        const [clientName, setClientName] = useState("");
+        const [items, setItems] = useState([{ name: "", price: "" }]);
+        const [generated, setGenerated] = useState(false);
+        const [invoiceDate, setInvoiceDate] = useState("");
+
+        const total = useMemo(() => {
+          return items.reduce((sum, it) => {
+            const n = Number(it.price);
+            return sum + (Number.isFinite(n) ? n : 0);
+          }, 0);
+        }, [items]);
+
+        function addItem() {
+          setItems((prev) => [...prev, { name: "", price: "" }]);
+        }
+
+        function updateItem(index, patch) {
+          setItems((prev) =>
+            prev.map((it, i) => {
+              if (i !== index) return it;
+              return { ...it, ...patch };
+            })
+          );
+        }
+
+        function generateInvoice() {
+          const now = new Date();
+          const dateStr = now.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+          });
+          setInvoiceDate(dateStr);
+          setGenerated(true);
+        }
+
+        function printInvoice() {
+          if (!generated) return;
+          window.print();
+        }
+
+        return (
+          <Page>
+            {/* Print styles: show only the invoice preview */}
+            <style>{`
+              @media print {
+                body * { visibility: hidden; }
+                #clipdrop-invoice-print, #clipdrop-invoice-print * { visibility: visible; }
+                #clipdrop-invoice-print { position: absolute; left: 0; top: 0; width: 100%; }
+              }
+            `}</style>
+
+            <ToolCard>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Invoice Generator</h1>
+                    <p className="text-slate-600 mt-2">
+                      Create invoices quickly with this free online invoice generator. Print or save as PDF in one click.
+                    </p>
+                    <p className="text-slate-600 mt-2">Create a simple invoice and print or save as PDF.</p>
+                  </div>
+
+                  <div className="no-print flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={generateInvoice}
+                      className={UI.btnPrimary}
+                    >
+                      Generate Invoice
+                    </button>
+                    <button
+                      type="button"
+                      onClick={printInvoice}
+                      disabled={!generated}
+                      className={cx(
+                        UI.btnSecondary,
+                        !generated ? "opacity-60 cursor-not-allowed" : ""
+                      )}
+                    >
+                      Print / Download PDF
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5 no-print">
+                  <AdPlaceholder />
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Inputs */}
+                  <div className={cx(UI.subCard, "no-print")}> 
+                    <div className="text-sm font-semibold text-slate-800">Details</div>
+
+                    <div className="mt-4 space-y-3">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-invoice-your">
+                          Your Name / Business Name
+                        </label>
+                        <input
+                          id="clipdrop-invoice-your"
+                          type="text"
+                          value={yourName}
+                          onChange={(e) => setYourName(e.target.value)}
+                          className={UI.input}
+                          placeholder="Your Business"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-invoice-client">
+                          Client Name
+                        </label>
+                        <input
+                          id="clipdrop-invoice-client"
+                          type="text"
+                          value={clientName}
+                          onChange={(e) => setClientName(e.target.value)}
+                          className={UI.input}
+                          placeholder="Client Company"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-slate-800">Items</div>
+                        <button
+                          type="button"
+                          onClick={addItem}
+                          className={cx(UI.btnSecondary, "px-3 py-2")}
+                        >
+                          Add Item
+                        </button>
+                      </div>
+
+                      <div className="mt-3 overflow-auto rounded-xl border border-slate-200 bg-white">
+                        <table className="w-full text-sm">
+                          <thead className="bg-slate-50">
+                            <tr className="text-left text-slate-600">
+                              <th className="px-4 py-3 font-medium">Item Name</th>
+                              <th className="px-4 py-3 font-medium w-40">Price</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.map((it, idx) => (
+                              <tr key={idx} className="border-t border-slate-200">
+                                <td className="px-4 py-3">
+                                  <input
+                                    type="text"
+                                    value={it.name}
+                                    onChange={(e) => updateItem(idx, { name: e.target.value })}
+                                    className={cx(
+                                      "w-full rounded-lg bg-white border border-slate-300",
+                                      "px-3 py-2 text-slate-900 placeholder:text-slate-400",
+                                      "focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition"
+                                    )}
+                                    placeholder={`Item ${idx + 1}`}
+                                  />
+                                </td>
+                                <td className="px-4 py-3">
+                                  <input
+                                    type="number"
+                                    inputMode="decimal"
+                                    min="0"
+                                    step="0.01"
+                                    value={it.price}
+                                    onChange={(e) => updateItem(idx, { price: e.target.value })}
+                                    className={cx(
+                                      "w-full rounded-lg bg-white border border-slate-300",
+                                      "px-3 py-2 text-slate-900 placeholder:text-slate-400",
+                                      "focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition"
+                                    )}
+                                    placeholder="0.00"
+                                  />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between text-sm">
+                        <div className="text-slate-400">Total</div>
+                        <div className="font-semibold text-slate-900 tabular-nums">{formatUsd(total)}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Preview */}
+                  <div className={UI.subCard}>
+                    <div className="text-sm font-semibold text-slate-800 mb-3">Invoice preview</div>
+
+                    {!generated ? (
+                      <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500">
+                        Click “Generate Invoice” to preview.
+                      </div>
+                    ) : (
+                      <div id="clipdrop-invoice-print" className="rounded-2xl bg-white text-slate-900 border border-slate-200 p-6">
+                        <div className="flex items-start justify-between gap-6">
+                          <div>
+                            <div className="text-xl font-semibold">Invoice</div>
+                            <div className="text-sm text-slate-600 mt-1">Date: {invoiceDate}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm text-slate-600">Total</div>
+                            <div className="text-2xl font-semibold">{formatUsd(total)}</div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          <div>
+                            <div className="text-xs uppercase tracking-wide text-slate-500">From</div>
+                            <div className="mt-1 font-medium">{yourName || "—"}</div>
+                          </div>
+                          <div>
+                            <div className="text-xs uppercase tracking-wide text-slate-500">Bill To</div>
+                            <div className="mt-1 font-medium">{clientName || "—"}</div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 overflow-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="text-left text-slate-600 border-b border-slate-200">
+                                <th className="py-2 pr-3 font-medium">Item</th>
+                                <th className="py-2 pl-3 font-medium text-right">Price</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {items.map((it, idx) => {
+                                const priceNum = Number(it.price);
+                                const safePrice = Number.isFinite(priceNum) ? priceNum : 0;
+                                return (
+                                  <tr key={idx} className="border-b border-slate-100">
+                                    <td className="py-2 pr-3">{it.name || `Item ${idx + 1}`}</td>
+                                    <td className="py-2 pl-3 text-right tabular-nums">{formatUsd(safePrice)}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-end">
+                          <div className="w-full sm:w-72">
+                            <div className="flex items-center justify-between text-sm text-slate-700">
+                              <div>Subtotal</div>
+                              <div className="tabular-nums">{formatUsd(total)}</div>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between text-base font-semibold">
+                              <div>Total</div>
+                              <div className="tabular-nums">{formatUsd(total)}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function ToolPage({ title }) {
+        return (
+          <Page>
+            <ToolCard>
+              <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">{title}</h1>
+              <p className="text-slate-600 mt-2">Free online {title} tool by ClipDrop Tools. Fast, simple, and no signup required.</p>
+              <div className="mt-5">
+                <AdPlaceholder />
+              </div>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function Footer() {
+        return (
+          <footer className="border-t border-slate-200 bg-white">
+            <Container className="px-4 sm:px-6">
+              <div className="py-6 text-center text-sm text-slate-500">
+                © 2026 ClipDrop Tools — Fast, Free Online Tools That Actually Work
+              </div>
+            </Container>
+          </footer>
+        );
+      }
+
+      function App() {
+        const [page, setPage] = useState(PAGES.HOME);
+        const [mobileOpen, setMobileOpen] = useState(false);
+
+        const pageTitle = page;
+
+        return (
+          <div className="min-h-screen flex bg-slate-50 text-slate-900">
+            <Sidebar
+              currentPage={page}
+              onNavigate={setPage}
+              mobileOpen={mobileOpen}
+              setMobileOpen={setMobileOpen}
+            />
+
+            <div className="flex-1 flex flex-col min-w-0">
+              <TopBar
+                onOpenMobileSidebar={() => setMobileOpen(true)}
+                pageTitle={pageTitle}
+              />
+
+              <main className="flex-1">
+                <div className="px-4 sm:px-6 pt-4">
+                  <Container>
+                    <AdPlaceholder />
+                  </Container>
+                </div>
+                {page === PAGES.HOME ? (
+                  <Home onSelectTool={setPage} />
+                ) : page === PAGES.WORD_COUNTER ? (
+                  <WordCounter />
+                ) : page === PAGES.PASSWORD_GENERATOR ? (
+                  <PasswordGenerator />
+                ) : page === PAGES.AGE_CALCULATOR ? (
+                  <AgeCalculator />
+                ) : page === PAGES.SALARY_CALCULATOR ? (
+                  <SalaryToHourlyCalculator />
+                ) : page === PAGES.YT_THUMBNAIL ? (
+                  <YouTubeThumbnailDownloader />
+                ) : page === PAGES.JSON_FORMATTER ? (
+                  <JsonFormatterValidator />
+                ) : page === PAGES.TEXT_CASE ? (
+                  <TextCaseConverter />
+                ) : page === PAGES.COLOR_PICKER ? (
+                  <ColorPickerHexConverter />
+                ) : page === PAGES.RANDOM_NAME ? (
+                  <RandomNameGenerator />
+                ) : page === PAGES.INVOICE_GENERATOR ? (
+                  <InvoiceGenerator />
+                ) : (
+                  <ToolPage title={page} />
+                )}
+              </main>
+
+              <Footer />
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
