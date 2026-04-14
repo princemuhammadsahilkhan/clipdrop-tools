@@ -47,7 +47,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-      const { useMemo, useState } = React;
+      const { useEffect, useMemo, useState } = React;
 
       const PAGES = {
         HOME: "Home",
@@ -2495,9 +2495,100 @@
         );
       }
 
+      function normalizePathname(pathname) {
+        const raw = String(pathname || "/");
+        if (raw === "") return "/";
+        // Remove trailing slashes except for root.
+        return raw.length > 1 ? raw.replace(/\/+$/, "") : raw;
+      }
+
+      function pageKeyToPath(pageKey) {
+        switch (pageKey) {
+          case PAGES.HOME:
+            return "/";
+          case PAGES.WORD_COUNTER:
+            return "/word-counter";
+          case PAGES.PASSWORD_GENERATOR:
+            return "/password-generator";
+          case PAGES.AGE_CALCULATOR:
+            return "/age-calculator";
+          case PAGES.SALARY_CALCULATOR:
+            return "/salary-calculator";
+          case PAGES.YT_THUMBNAIL:
+            return "/youtube-thumbnail-downloader";
+          case PAGES.JSON_FORMATTER:
+            return "/json-formatter";
+          case PAGES.TEXT_CASE:
+            return "/text-case-converter";
+          case PAGES.COLOR_PICKER:
+            return "/color-picker";
+          case PAGES.RANDOM_NAME:
+            return "/random-name-generator";
+          case PAGES.INVOICE_GENERATOR:
+            return "/invoice-generator";
+          default:
+            return "/";
+        }
+      }
+
       function App() {
-        const [page, setPage] = useState(PAGES.HOME);
         const [mobileOpen, setMobileOpen] = useState(false);
+
+        useEffect(() => {
+          window.addEventListener("popstate", () => {
+            window.location.reload();
+          });
+        }, []);
+
+        function navigateTo(pageKey) {
+          const to = pageKeyToPath(pageKey);
+          window.history.pushState({}, "", to);
+          window.location.reload();
+        }
+
+        const path = normalizePathname(window.location.pathname);
+
+        let page = PAGES.HOME;
+        let content = <Home onSelectTool={navigateTo} />;
+
+        if (path === "/") {
+          page = PAGES.HOME;
+          content = <Home onSelectTool={navigateTo} />;
+        } else if (path === "/word-counter") {
+          page = PAGES.WORD_COUNTER;
+          content = <WordCounter />;
+        } else if (path === "/password-generator") {
+          page = PAGES.PASSWORD_GENERATOR;
+          content = <PasswordGenerator />;
+        } else if (path === "/age-calculator") {
+          page = PAGES.AGE_CALCULATOR;
+          content = <AgeCalculator />;
+        } else if (path === "/salary-calculator") {
+          page = PAGES.SALARY_CALCULATOR;
+          content = <SalaryToHourlyCalculator />;
+        } else if (path === "/youtube-thumbnail-downloader") {
+          page = PAGES.YT_THUMBNAIL;
+          content = <YouTubeThumbnailDownloader />;
+        } else if (path === "/json-formatter") {
+          page = PAGES.JSON_FORMATTER;
+          content = <JsonFormatterValidator />;
+        } else if (path === "/text-case-converter") {
+          page = PAGES.TEXT_CASE;
+          content = <TextCaseConverter />;
+        } else if (path === "/color-picker") {
+          page = PAGES.COLOR_PICKER;
+          content = <ColorPickerHexConverter />;
+        } else if (path === "/random-name-generator") {
+          page = PAGES.RANDOM_NAME;
+          content = <RandomNameGenerator />;
+        } else if (path === "/invoice-generator") {
+          page = PAGES.INVOICE_GENERATOR;
+          content = <InvoiceGenerator />;
+        } else {
+          // Unknown route: fallback to Home.
+          page = PAGES.HOME;
+          content = <Home onSelectTool={navigateTo} />;
+        }
 
         const pageTitle = page;
 
@@ -2505,7 +2596,7 @@
           <div className="min-h-screen flex bg-slate-50 text-slate-900">
             <Sidebar
               currentPage={page}
-              onNavigate={setPage}
+              onNavigate={navigateTo}
               mobileOpen={mobileOpen}
               setMobileOpen={setMobileOpen}
             />
@@ -2522,31 +2613,7 @@
                     <AdPlaceholder />
                   </Container>
                 </div>
-                {page === PAGES.HOME ? (
-                  <Home onSelectTool={setPage} />
-                ) : page === PAGES.WORD_COUNTER ? (
-                  <WordCounter />
-                ) : page === PAGES.PASSWORD_GENERATOR ? (
-                  <PasswordGenerator />
-                ) : page === PAGES.AGE_CALCULATOR ? (
-                  <AgeCalculator />
-                ) : page === PAGES.SALARY_CALCULATOR ? (
-                  <SalaryToHourlyCalculator />
-                ) : page === PAGES.YT_THUMBNAIL ? (
-                  <YouTubeThumbnailDownloader />
-                ) : page === PAGES.JSON_FORMATTER ? (
-                  <JsonFormatterValidator />
-                ) : page === PAGES.TEXT_CASE ? (
-                  <TextCaseConverter />
-                ) : page === PAGES.COLOR_PICKER ? (
-                  <ColorPickerHexConverter />
-                ) : page === PAGES.RANDOM_NAME ? (
-                  <RandomNameGenerator />
-                ) : page === PAGES.INVOICE_GENERATOR ? (
-                  <InvoiceGenerator />
-                ) : (
-                  <ToolPage title={page} />
-                )}
+                {content}
               </main>
 
               <Footer />
