@@ -47,11 +47,12 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-      const { useEffect, useMemo, useState } = React;
+      const { useEffect, useMemo, useRef, useState } = React;
 
       const PAGES = {
         HOME: "Home",
         WORD_COUNTER: "Word Counter",
+        IMAGE_COMPRESSOR: "Image Compressor",
         PASSWORD_GENERATOR: "Password Generator",
         AGE_CALCULATOR: "Age Calculator",
         SALARY_CALCULATOR: "Salary Calculator",
@@ -65,6 +66,16 @@
 
       function cx(...classes) {
         return classes.filter(Boolean).join(" ");
+      }
+
+      function formatBytes(bytes) {
+        const n = Number(bytes);
+        if (!Number.isFinite(n) || n <= 0) return "0 B";
+        const units = ["B", "KB", "MB", "GB"];
+        const i = Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
+        const value = n / Math.pow(1024, i);
+        const decimals = i === 0 ? 0 : value >= 100 ? 0 : value >= 10 ? 1 : 2;
+        return `${value.toFixed(decimals)} ${units[i]}`;
       }
 
       const UI = {
@@ -228,6 +239,7 @@
           () => [
             { key: PAGES.HOME, label: "Home", icon: Icons.Home },
             { key: PAGES.WORD_COUNTER, label: "Word Counter", icon: Icons.Word },
+            { key: PAGES.IMAGE_COMPRESSOR, label: "Image Compressor", icon: Icons.Color },
             { key: PAGES.PASSWORD_GENERATOR, label: "Password Generator", icon: Icons.Key },
             { key: PAGES.AGE_CALCULATOR, label: "Age Calculator", icon: Icons.Calendar },
             { key: PAGES.SALARY_CALCULATOR, label: "Salary Calculator", icon: Icons.Dollar },
@@ -361,6 +373,12 @@
               title: "Word Counter",
               desc: "Count words, characters, lines, and more in seconds.",
               icon: Icons.Word,
+            },
+            {
+              key: PAGES.IMAGE_COMPRESSOR,
+              title: "Image Compressor",
+              desc: "Compress images online for free. Reduce file size instantly without losing quality.",
+              icon: Icons.Color,
             },
             {
               key: PAGES.PASSWORD_GENERATOR,
@@ -1309,6 +1327,255 @@
 
               <p className="mt-4 text-gray-600 text-sm">
                 Use this free JSON formatter to validate and format your JSON data instantly. It helps developers clean, structure, and debug JSON easily.
+              </p>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function ImageCompressor() {
+        const [file, setFile] = useState(null);
+        const [quality, setQuality] = useState(0.8);
+        const [error, setError] = useState("");
+        const [busy, setBusy] = useState(false);
+        const [originalUrl, setOriginalUrl] = useState("");
+        const [compressedUrl, setCompressedUrl] = useState("");
+        const [originalBytes, setOriginalBytes] = useState(0);
+        const [compressedBytes, setCompressedBytes] = useState(0);
+        const [compressedBlob, setCompressedBlob] = useState(null);
+        const jobIdRef = useRef(0);
+
+        useEffect(() => {
+          if (!file) {
+            setOriginalUrl("");
+            setOriginalBytes(0);
+            return;
+          }
+          const url = URL.createObjectURL(file);
+          setOriginalUrl(url);
+          setOriginalBytes(file.size || 0);
+          return () => URL.revokeObjectURL(url);
+        }, [file]);
+
+        useEffect(() => {
+          if (!compressedBlob) {
+            setCompressedUrl("");
+            setCompressedBytes(0);
+            return;
+          }
+          const url = URL.createObjectURL(compressedBlob);
+          setCompressedUrl(url);
+          setCompressedBytes(compressedBlob.size || 0);
+          return () => URL.revokeObjectURL(url);
+        }, [compressedBlob]);
+
+        useEffect(() => {
+          if (!file) {
+            setCompressedBlob(null);
+            setError("");
+            setBusy(false);
+            return;
+          }
+
+          const jobId = ++jobIdRef.current;
+          setBusy(true);
+          setError("");
+
+          const run = async () => {
+            try {
+              const dataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error("Failed to read file."));
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+              });
+
+              const img = await new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = () => resolve(image);
+                image.onerror = () => reject(new Error("Failed to load image."));
+                image.src = String(dataUrl);
+              });
+
+              const canvas = document.createElement("canvas");
+              canvas.width = img.naturalWidth || img.width;
+              canvas.height = img.naturalHeight || img.height;
+
+              const ctx = canvas.getContext("2d");
+              if (!ctx) throw new Error("Canvas is not supported in this browser.");
+              ctx.drawImage(img, 0, 0);
+
+              const inputType = String(file.type || "").toLowerCase();
+              const outputType =
+                inputType === "image/png" ? "image/png" : inputType === "image/webp" ? "image/webp" : "image/jpeg";
+
+              const q = Math.max(0.1, Math.min(1, Number(quality) || 0.8));
+              const blob = await new Promise((resolve) => {
+                canvas.toBlob(
+                  (b) => resolve(b),
+                  outputType,
+                  q
+                );
+              });
+
+              if (jobId !== jobIdRef.current) return;
+
+              if (!blob) {
+                setCompressedBlob(null);
+                setError("Compression failed. Please try a different image.");
+                return;
+              }
+
+              setCompressedBlob(blob);
+            } catch (e) {
+              if (jobId !== jobIdRef.current) return;
+              const msg = e && typeof e.message === "string" ? e.message : "Compression failed.";
+              setCompressedBlob(null);
+              setError(msg);
+            } finally {
+              if (jobId === jobIdRef.current) setBusy(false);
+            }
+          };
+
+          run();
+        }, [file, quality]);
+
+        const downloadName = useMemo(() => {
+          if (!file) return "compressed-image.jpg";
+          const name = String(file.name || "image");
+          const base = name.replace(/\.[^/.]+$/, "");
+          const type = compressedBlob?.type || "image/jpeg";
+          const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : "jpg";
+          return `${base}-compressed.${ext}`;
+        }, [file, compressedBlob]);
+
+        const savings = useMemo(() => {
+          if (!originalBytes || !compressedBytes) return null;
+          const diff = originalBytes - compressedBytes;
+          const pct = (diff / originalBytes) * 100;
+          return { diff, pct };
+        }, [originalBytes, compressedBytes]);
+
+        return (
+          <Page>
+            <ToolCard>
+              <div className="bg-white p-6 rounded-xl shadow">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">Image Compressor</h1>
+                    <p className="text-slate-600 mt-2">Compress images client-side with adjustable quality.</p>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <AdPlaceholder />
+                </div>
+
+                <div className={cx(UI.subCard, "mt-6")}>
+                  <label className="block text-sm font-semibold text-slate-700" htmlFor="clipdrop-image-compressor-file">
+                    Choose an image
+                  </label>
+                  <input
+                    id="clipdrop-image-compressor-file"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                      setFile(f);
+                      setError("");
+                    }}
+                    className={cx(
+                      "mt-2 block w-full text-sm",
+                      "file:mr-4 file:py-2 file:px-4",
+                      "file:rounded-xl file:border-0",
+                      "file:text-sm file:font-semibold",
+                      "file:bg-slate-900 file:text-slate-100",
+                      "hover:file:bg-slate-800"
+                    )}
+                  />
+
+                  <div className="mt-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-semibold text-slate-700">Compression quality</div>
+                      <div className="text-sm text-slate-600 tabular-nums">{Number(quality).toFixed(2)}</div>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="1"
+                      step="0.05"
+                      value={quality}
+                      onChange={(e) => setQuality(Number(e.target.value))}
+                      className="mt-2 w-full"
+                    />
+                    <div className="mt-2 text-xs text-slate-500">Lower = smaller file, higher = better quality.</div>
+                  </div>
+
+                  {error ? <div className="mt-4 text-sm text-rose-600">{error}</div> : null}
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className={UI.subCard}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-semibold text-slate-800">Original</div>
+                      <div className="text-xs text-slate-500 tabular-nums">{formatBytes(originalBytes)}</div>
+                    </div>
+                    <div className="mt-3 rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      {originalUrl ? (
+                        <img src={originalUrl} alt="Original preview" className="w-full max-h-[340px] object-contain" />
+                      ) : (
+                        <div className="h-48 flex items-center justify-center text-sm text-slate-500">Upload an image to preview</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={UI.subCard}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-semibold text-slate-800">Compressed</div>
+                      <div className="text-xs text-slate-500 tabular-nums">
+                        {busy ? "Compressing…" : formatBytes(compressedBytes)}
+                      </div>
+                    </div>
+                    <div className="mt-3 rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      {compressedUrl ? (
+                        <img src={compressedUrl} alt="Compressed preview" className="w-full max-h-[340px] object-contain" />
+                      ) : (
+                        <div className="h-48 flex items-center justify-center text-sm text-slate-500">
+                          {file ? (busy ? "Compressing…" : "Compressed preview will appear here") : "Upload an image to compress"}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="text-sm text-slate-600">
+                    {savings ? (
+                      <span className="tabular-nums">
+                        Saved {formatBytes(savings.diff)} ({savings.pct.toFixed(1)}%)
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">Upload an image to see size savings.</span>
+                    )}
+                  </div>
+                  {compressedUrl ? (
+                    <a
+                      href={compressedUrl}
+                      download={downloadName}
+                      className={UI.btnPrimary}
+                    >
+                      Download Compressed Image
+                    </a>
+                  ) : (
+                    <button type="button" className={UI.btnPrimary} disabled>
+                      Download Compressed Image
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <p className="mt-4 text-gray-600 text-sm">
+                This free image compressor allows you to reduce image size online without uploading files to a server. Fast, secure, and works directly in your browser.
               </p>
             </ToolCard>
           </Page>
@@ -2508,6 +2775,8 @@
             return "/";
           case PAGES.WORD_COUNTER:
             return "/word-counter";
+          case PAGES.IMAGE_COMPRESSOR:
+            return "/image-compressor";
           case PAGES.PASSWORD_GENERATOR:
             return "/password-generator";
           case PAGES.AGE_CALCULATOR:
@@ -2557,6 +2826,9 @@
         } else if (path === "/word-counter") {
           page = PAGES.WORD_COUNTER;
           content = <WordCounter />;
+        } else if (path === "/image-compressor") {
+          page = PAGES.IMAGE_COMPRESSOR;
+          content = <ImageCompressor />;
         } else if (path === "/password-generator") {
           page = PAGES.PASSWORD_GENERATOR;
           content = <PasswordGenerator />;
