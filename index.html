@@ -45,6 +45,7 @@
 
     <!-- Babel (CDN for JSX) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 
     <script type="text/babel">
       const { useEffect, useMemo, useRef, useState } = React;
@@ -54,6 +55,7 @@
         WORD_COUNTER: "Word Counter",
         IMAGE_COMPRESSOR: "Image Compressor",
         IMAGE_CONVERTER: "Image Converter",
+        QR_GENERATOR: "QR Code Generator",
         PASSWORD_GENERATOR: "Password Generator",
         AGE_CALCULATOR: "Age Calculator",
         SALARY_CALCULATOR: "Salary Calculator",
@@ -255,6 +257,17 @@
             <path d="M21 15l-5-5-5 6-3-3-5 6" />
           </IconBase>
         ),
+        Qr: (props) => (
+          <IconBase {...props}>
+            <rect x="4" y="4" width="6" height="6" rx="1" />
+            <rect x="14" y="4" width="6" height="6" rx="1" />
+            <rect x="4" y="14" width="6" height="6" rx="1" />
+            <path d="M14 14h2" />
+            <path d="M18 14h2" />
+            <path d="M14 18h2" />
+            <path d="M18 18h2" />
+          </IconBase>
+        ),
       };
 
       function Sidebar({ currentPage, onNavigate, mobileOpen, setMobileOpen }) {
@@ -264,6 +277,7 @@
             { key: PAGES.WORD_COUNTER, label: "Word Counter", icon: Icons.Word },
             { key: PAGES.IMAGE_COMPRESSOR, label: "Image Compressor", icon: Icons.Color },
             { key: PAGES.IMAGE_CONVERTER, label: "Image Converter", icon: Icons.Image },
+            { key: PAGES.QR_GENERATOR, label: "QR Code Generator", icon: Icons.Qr },
             { key: PAGES.PASSWORD_GENERATOR, label: "Password Generator", icon: Icons.Key },
             { key: PAGES.AGE_CALCULATOR, label: "Age Calculator", icon: Icons.Calendar },
             { key: PAGES.SALARY_CALCULATOR, label: "Salary Calculator", icon: Icons.Dollar },
@@ -407,6 +421,12 @@
               title: "Image Converter",
               desc: "Convert images online instantly. Change JPG, PNG, WEBP formats for free.",
               icon: Icons.Image,
+            },
+            {
+              key: PAGES.QR_GENERATOR,
+              title: "QR Code Generator",
+              desc: "Create QR codes instantly for links, text, and more.",
+              icon: Icons.Qr,
             },
             {
               key: PAGES.PASSWORD_GENERATOR,
@@ -1854,6 +1874,135 @@
         );
       }
 
+      function QRCodeGenerator() {
+        const [text, setText] = useState("");
+        const [qrDataUrl, setQrDataUrl] = useState("");
+        const [busy, setBusy] = useState(false);
+        const [error, setError] = useState("");
+
+        async function generateQr() {
+          const value = String(text || "").trim();
+          if (!value) {
+            setError("Please enter text or a URL.");
+            setQrDataUrl("");
+            return;
+          }
+
+          if (!window.QRCode || !window.QRCode.toDataURL) {
+            setError("QR library failed to load. Please refresh and try again.");
+            setQrDataUrl("");
+            return;
+          }
+
+          setBusy(true);
+          setError("");
+
+          try {
+            const url = await new Promise((resolve, reject) => {
+              window.QRCode.toDataURL(
+                value,
+                {
+                  width: 320,
+                  margin: 2,
+                  errorCorrectionLevel: "M",
+                },
+                (err, dataUrl) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve(dataUrl);
+                }
+              );
+            });
+
+            setQrDataUrl(String(url));
+          } catch (e) {
+            const msg = e && typeof e.message === "string" ? e.message : "Failed to generate QR code.";
+            setError(msg);
+            setQrDataUrl("");
+          } finally {
+            setBusy(false);
+          }
+        }
+
+        return (
+          <Page>
+            <ToolCard>
+              <div className="bg-white/70 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-sm p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+                  <div className="flex-1">
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">QR Code Generator</h2>
+                    <p className="text-slate-600 mt-2">Enter any text or URL, generate a QR code, and download it as PNG.</p>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-qr-input">
+                    Text or URL
+                  </label>
+                  <input
+                    id="clipdrop-qr-input"
+                    type="text"
+                    value={text}
+                    onChange={(e) => {
+                      setText(e.target.value);
+                      setError("");
+                    }}
+                    placeholder="https://example.com or any text"
+                    className={UI.input}
+                  />
+                </div>
+
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={generateQr}
+                    className={cx(UI.btnPrimary, !text.trim() || busy ? "opacity-60 cursor-not-allowed" : "")}
+                    disabled={!text.trim() || busy}
+                  >
+                    {busy ? "Generating..." : "Generate"}
+                  </button>
+
+                  {qrDataUrl ? (
+                    <a href={qrDataUrl} download="qr-code.png" className={UI.btnSecondary}>
+                      Download PNG
+                    </a>
+                  ) : (
+                    <button type="button" className={UI.btnSecondary} disabled>
+                      Download PNG
+                    </button>
+                  )}
+                </div>
+
+                {error ? <div className="mt-4 text-sm font-medium text-rose-600 bg-rose-50 px-3 py-2 rounded-lg">{error}</div> : null}
+
+                <div className="mt-6">
+                  <div className={UI.subCard}>
+                    <div className="text-sm font-semibold text-slate-800 mb-3">QR Preview</div>
+                    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden min-h-[280px] flex items-center justify-center p-4">
+                      {qrDataUrl ? (
+                        <img src={qrDataUrl} alt="Generated QR code" className="w-64 h-64 object-contain" />
+                      ) : (
+                        <div className="text-sm font-medium text-slate-500">Enter text and click Generate</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <h1 className="text-2xl font-bold mt-4">
+                Free QR Code Generator
+              </h1>
+
+              <p className="mt-2 text-gray-600 text-sm">
+                Generate QR codes online for free. Create QR codes for URLs, text, and more instantly. This qr code generator helps you create qr code images with a free qr code tool.
+              </p>
+            </ToolCard>
+          </Page>
+        );
+      }
+
       function toTitleCase(text) {
         const s = String(text ?? "");
         // Capitalize first letter of each word, preserve spacing/punctuation.
@@ -3051,6 +3200,8 @@
             return "/image-compressor";
           case PAGES.IMAGE_CONVERTER:
             return "/image-converter";
+          case PAGES.QR_GENERATOR:
+            return "/qr-generator";
           case PAGES.PASSWORD_GENERATOR:
             return "/password-generator";
           case PAGES.AGE_CALCULATOR:
@@ -3106,6 +3257,9 @@
         } else if (path === "/image-converter") {
           page = PAGES.IMAGE_CONVERTER;
           content = <ImageConverter />;
+        } else if (path === "/qr-generator") {
+          page = PAGES.QR_GENERATOR;
+          content = <QRCodeGenerator />;
         } else if (path === "/password-generator") {
           page = PAGES.PASSWORD_GENERATOR;
           content = <PasswordGenerator />;
