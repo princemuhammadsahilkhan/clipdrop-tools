@@ -36,7 +36,7 @@
       };
     </script>
   </head>
-  <body class="bg-gradient-to-br from-slate-50 via-white to-slate-50 text-slate-900 antialiased">
+  <body class="bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 antialiased">
     <div id="root"></div>
 
     <!-- React (CDN) -->
@@ -53,6 +53,7 @@
         HOME: "Home",
         WORD_COUNTER: "Word Counter",
         IMAGE_COMPRESSOR: "Image Compressor",
+        IMAGE_CONVERTER: "Image Converter",
         PASSWORD_GENERATOR: "Password Generator",
         AGE_CALCULATOR: "Age Calculator",
         SALARY_CALCULATOR: "Salary Calculator",
@@ -79,28 +80,28 @@
       }
 
       const UI = {
-        page: "px-4 sm:px-6 py-8 sm:py-10",
+        page: "px-4 sm:px-6 py-10 sm:py-14",
         container: "max-w-5xl mx-auto w-full",
-        toolCard: "rounded-2xl bg-white border border-slate-200 shadow-md hover:shadow-lg p-6 sm:p-8 transition-all duration-200",
-        subCard: "rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 p-6 hover:border-slate-300 transition-all duration-200",
-        statCard: "rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md p-5 sm:p-6 transition-all duration-200",
+        toolCard: "rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200/60 shadow-sm hover:shadow-xl p-6 sm:p-8 transition-all duration-300 hover:scale-[1.02]",
+        subCard: "rounded-2xl bg-white/70 backdrop-blur-md border border-gray-200/50 p-6 hover:border-gray-300 transition-all duration-300 hover:shadow-md hover:scale-[1.01]",
+        statCard: "rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200/60 shadow-sm hover:shadow-lg p-5 sm:p-6 transition-all duration-300 hover:scale-[1.02]",
         input:
-          "w-full rounded-lg bg-white border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 " +
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150",
+          "w-full rounded-lg bg-white/70 border border-gray-300/60 px-4 py-3 text-slate-900 placeholder:text-slate-400 " +
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150",
         textarea:
-          "w-full rounded-lg bg-white border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 " +
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150 resize-y",
+          "w-full rounded-lg bg-white/70 border border-gray-300/60 px-4 py-3 text-slate-900 placeholder:text-slate-400 " +
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 resize-y",
         btnPrimary:
           "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 " +
-          "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 " +
+          "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 " +
           "disabled:opacity-60 disabled:cursor-not-allowed",
         btnSecondary:
           "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 " +
-          "bg-white text-slate-900 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 " +
+          "bg-white/70 text-slate-900 border border-gray-300/60 hover:bg-white/90 hover:border-gray-400 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 " +
           "disabled:opacity-60 disabled:cursor-not-allowed",
         btnTertiary:
           "inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200 " +
-          "bg-slate-900 text-slate-100 border border-slate-700 hover:bg-slate-800 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 " +
+          "bg-gradient-to-r from-slate-900 to-slate-800 text-slate-100 border border-slate-700 hover:shadow-lg hover:shadow-slate-900/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 " +
           "disabled:opacity-60 disabled:cursor-not-allowed",
       };
 
@@ -120,14 +121,29 @@
         return <div className={cx(UI.toolCard, className)}>{children}</div>;
       }
 
+      function Logo({ color = "white", size = "normal" }) {
+        const iconSize = size === "small" ? "w-6 h-6" : "w-8 h-8";
+        const textSize = size === "small" ? "text-base" : "text-lg";
+        const textColor = color === "white" ? "text-white" : "text-slate-900";
+        
+        return (
+          <div className="flex items-center gap-2 font-bold">
+            <div className={`${iconSize} rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold`}>
+              C
+            </div>
+            <span className={`${textSize} ${textColor}`}>ClipDrop</span>
+          </div>
+        );
+      }
+
       function AdPlaceholder({ className, label = "Ad مساحة" }) {
         return (
           <div
             className={cx(
-              "rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-100 to-slate-50 text-slate-500",
+              "rounded-2xl border border-gray-200/60 bg-white/70 backdrop-blur-md text-slate-500",
               "px-4 py-6 sm:px-6 sm:py-8",
               "text-center text-sm font-semibold",
-              "select-none shadow-sm hover:shadow-md transition-all duration-200",
+              "select-none shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.01]",
               className
             )}
             aria-label="Ad placeholder"
@@ -232,6 +248,13 @@
             <path d="M9 16h5" />
           </IconBase>
         ),
+        Image: (props) => (
+          <IconBase {...props}>
+            <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+            <circle cx="9" cy="10" r="1.5" />
+            <path d="M21 15l-5-5-5 6-3-3-5 6" />
+          </IconBase>
+        ),
       };
 
       function Sidebar({ currentPage, onNavigate, mobileOpen, setMobileOpen }) {
@@ -240,6 +263,7 @@
             { key: PAGES.HOME, label: "Home", icon: Icons.Home },
             { key: PAGES.WORD_COUNTER, label: "Word Counter", icon: Icons.Word },
             { key: PAGES.IMAGE_COMPRESSOR, label: "Image Compressor", icon: Icons.Color },
+            { key: PAGES.IMAGE_CONVERTER, label: "Image Converter", icon: Icons.Image },
             { key: PAGES.PASSWORD_GENERATOR, label: "Password Generator", icon: Icons.Key },
             { key: PAGES.AGE_CALCULATOR, label: "Age Calculator", icon: Icons.Calendar },
             { key: PAGES.SALARY_CALCULATOR, label: "Salary Calculator", icon: Icons.Dollar },
@@ -254,20 +278,14 @@
         );
 
         const nav = (
-          <div className="h-full flex flex-col bg-gradient-to-b from-gray-900 to-gray-800">
-            <div className="px-4 py-5 border-b border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-blue-600 text-blue-50 flex items-center justify-center border border-blue-500/20 shadow-lg shadow-blue-500/20">
-                  <Icons.Home className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-xl font-semibold tracking-tight text-white">ClipDrop Tools</div>
-                  <div className="text-sm text-gray-300 mt-0.5">Fast, Free Online Tools That Actually Work</div>
-                </div>
-              </div>
+          <div className="h-full flex flex-col bg-gradient-to-b from-gray-900 via-slate-900 to-gray-900 relative overflow-hidden">
+            {/* Subtle overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 pointer-events-none" />
+            <div className="relative z-10 px-4 py-6 border-b border-gray-700/50">
+              <Logo color="white" size="normal" />
             </div>
 
-            <nav className="flex-1 overflow-auto p-3 space-y-1">
+            <nav className="flex-1 overflow-auto p-3 space-y-1 relative z-10">
               {items.map((it) => {
                 const active = it.key === currentPage;
                 const Icon = it.icon;
@@ -281,23 +299,23 @@
                     className={cx(
                       "group relative w-full text-left rounded-lg px-3 py-3 text-sm font-medium transition-all duration-200",
                       active
-                        ? "bg-gray-700 text-white shadow-md"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white hover:shadow-md"
+                        ? "bg-gradient-to-r from-blue-600/20 to-purple-600/10 text-white shadow-lg shadow-blue-500/10 border border-blue-400/30"
+                        : "text-gray-300 hover:bg-gray-700/50 hover:text-white hover:shadow-md"
                     )}
                     aria-current={active ? "page" : undefined}
                   >
                     <span
                       className={cx(
                         "absolute left-0 top-2 bottom-2 w-1 rounded-r",
-                        active ? "bg-blue-400" : "bg-transparent"
+                        active ? "bg-gradient-to-b from-blue-400 to-purple-400 shadow-lg shadow-blue-400/50" : "bg-transparent"
                       )}
                       aria-hidden="true"
                     />
                     <span className="flex items-center gap-3">
                       <span
                         className={cx(
-                          "shrink-0 transition-colors duration-200",
-                          active ? "text-blue-300" : "text-gray-400 group-hover:text-gray-200"
+                          "shrink-0 transition-all duration-200",
+                          active ? "text-blue-300 text-lg" : "text-gray-400 group-hover:text-gray-200 text-base"
                         )}
                         aria-hidden="true"
                       >
@@ -310,8 +328,8 @@
               })}
             </nav>
 
-            <div className="p-4 border-t border-gray-700 text-xs text-gray-400">
-              Built with React + Tailwind
+            <div className="relative z-10 p-4 border-t border-gray-700/50 text-xs text-gray-400">
+              ✨ Built with React + Tailwind
             </div>
           </div>
         );
@@ -319,7 +337,7 @@
         return (
           <>
             {/* Desktop sidebar */}
-            <aside className="hidden md:block md:w-72 lg:w-80 shrink-0 bg-gradient-to-b from-gray-900 to-gray-800 border-r border-gray-700 shadow-2xl">
+            <aside className="hidden md:block md:w-72 lg:w-80 shrink-0 bg-gradient-to-b from-gray-900 to-gray-800 border-r border-gray-800 shadow-2xl">
               {nav}
             </aside>
 
@@ -331,7 +349,7 @@
                 className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-all duration-300"
                 onClick={() => setMobileOpen(false)}
               />
-              <aside className="fixed inset-y-0 left-0 w-80 max-w-[86vw] bg-gradient-to-b from-gray-900 to-gray-800 border-r border-gray-700 shadow-2xl">
+              <aside className="fixed inset-y-0 left-0 w-80 max-w-[86vw] bg-gradient-to-b from-gray-900 to-gray-800 border-r border-gray-800 shadow-2xl">
                 {nav}
               </aside>
             </div>
@@ -341,25 +359,28 @@
 
       function TopBar({ onOpenMobileSidebar, pageTitle }) {
         return (
-          <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+          <div className="sticky top-0 z-10 bg-white/70 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
             <Container className="px-4 sm:px-6">
               <div className="flex items-center gap-3 py-3.5">
-              <button
-                className={cx(
-                  "md:hidden inline-flex items-center justify-center rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200",
-                  "bg-slate-900 text-slate-100 border border-slate-800 hover:bg-slate-800 hover:shadow-md active:scale-95"
-                )}
-                onClick={onOpenMobileSidebar}
-                aria-label="Open navigation"
-              >
-                Menu
-              </button>
-              <div className="min-w-0">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">ClipDrop Tools</div>
-                <div className="text-lg font-semibold tracking-tight truncate text-slate-900">{pageTitle}</div>
-              </div>
-              <div className="flex-1" />
-              <div className="hidden sm:block text-sm text-slate-500 font-medium">Fast, Free Online Tools</div>
+                <div className="hidden md:block">
+                  <Logo color="dark" size="small" />
+                </div>
+                <button
+                  className={cx(
+                    "md:hidden inline-flex items-center justify-center rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200",
+                    "bg-slate-900 text-slate-100 border border-slate-800 hover:bg-slate-800 hover:shadow-md active:scale-95"
+                  )}
+                  onClick={onOpenMobileSidebar}
+                  aria-label="Open navigation"
+                >
+                  Menu
+                </button>
+                <div className="min-w-0">
+                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Current Tool</div>
+                  <div className="text-lg font-semibold tracking-tight truncate text-slate-900">{pageTitle}</div>
+                </div>
+                <div className="flex-1" />
+                <div className="hidden sm:block text-sm text-slate-500 font-medium">Fast, Free Online Tools</div>
               </div>
             </Container>
           </div>
@@ -380,6 +401,12 @@
               title: "Image Compressor",
               desc: "Compress images online for free. Reduce file size instantly without losing quality.",
               icon: Icons.Color,
+            },
+            {
+              key: PAGES.IMAGE_CONVERTER,
+              title: "Image Converter",
+              desc: "Convert images online instantly. Change JPG, PNG, WEBP formats for free.",
+              icon: Icons.Image,
             },
             {
               key: PAGES.PASSWORD_GENERATOR,
@@ -441,16 +468,16 @@
 
         return (
           <Page>
-            <div className="flex items-end justify-between gap-4 mb-8">
-              <div>
-                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900">
-                  ClipDrop Tools
-                </h1>
-                <p className="text-lg text-slate-600 mt-3">Fast, Free Online Tools That Actually Work — No signup. No limits. Just tools.</p>
-              </div>
+            <div className="text-center mb-12">
+              <h1 className="text-5xl sm:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                ClipDrop Tools
+              </h1>
+              <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+                Fast, free online tools — no signup, no limits.
+              </p>
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {cards.slice(0, 4).map((c) => {
                 const Icon = c.icon;
                 return (
@@ -458,16 +485,16 @@
                     key={c.key}
                     onClick={() => onSelectTool(c.key)}
                     className={cx(
-                      "group text-left rounded-2xl border border-slate-200 bg-white shadow-md",
-                      "hover:shadow-lg hover:border-slate-300 hover:scale-[1.02]",
-                      "transition-all duration-200",
+                      "group text-left rounded-2xl border border-gray-200/60 bg-white/80 backdrop-blur-md shadow-sm",
+                      "hover:shadow-xl hover:border-gray-300 hover:scale-[1.02]",
+                      "transition-all duration-300",
                       "p-5 sm:p-6"
                     )}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-3">
-                          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 border border-blue-200 flex items-center justify-center flex-shrink-0 group-hover:shadow-md transition-shadow">
+                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
                             <Icon className="h-6 w-6" />
                           </div>
                           <div className="min-w-0">
@@ -483,11 +510,13 @@
                   </button>
                 );
               })}
+            </div>
 
-              <div className="sm:col-span-2 lg:col-span-3">
-                <AdPlaceholder />
-              </div>
+            <div className="bg-white/70 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 my-8">
+              <AdPlaceholder />
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {cards.slice(4).map((c) => {
                 const Icon = c.icon;
                 return (
@@ -495,16 +524,16 @@
                     key={c.key}
                     onClick={() => onSelectTool(c.key)}
                     className={cx(
-                      "group text-left rounded-2xl border border-slate-200 bg-white shadow-md",
-                      "hover:shadow-lg hover:border-slate-300 hover:scale-[1.02]",
-                      "transition-all duration-200",
+                      "group text-left rounded-2xl border border-gray-200/60 bg-white/80 backdrop-blur-md shadow-sm",
+                      "hover:shadow-xl hover:border-gray-300 hover:scale-[1.02]",
+                      "transition-all duration-300",
                       "p-5 sm:p-6"
                     )}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-3">
-                          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 border border-blue-200 flex items-center justify-center flex-shrink-0 group-hover:shadow-md transition-shadow">
+                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
                             <Icon className="h-6 w-6" />
                           </div>
                           <div className="min-w-0">
@@ -553,7 +582,7 @@
 
       function Stat({ label, value }) {
         return (
-          <div className="rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md p-5 sm:p-6 transition-all duration-200 transform hover:scale-[1.02]">
+          <div className="rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200/60 shadow-sm hover:shadow-lg p-5 sm:p-6 transition-all duration-300 hover:scale-[1.02]">
             <div className="text-xs uppercase tracking-wide font-semibold text-slate-500">{label}</div>
             <div className="mt-2 text-3xl font-bold text-slate-900 tabular-nums">{value}</div>
           </div>
@@ -1580,6 +1609,238 @@
                 <li>Adjust compression level</li>
                 <li>Download the compressed image</li>
               </ul>
+            </ToolCard>
+          </Page>
+        );
+      }
+
+      function ImageConverter() {
+        const [file, setFile] = useState(null);
+        const [targetFormat, setTargetFormat] = useState("image/jpeg");
+        const [busy, setBusy] = useState(false);
+        const [error, setError] = useState("");
+        const [originalUrl, setOriginalUrl] = useState("");
+        const [convertedBlob, setConvertedBlob] = useState(null);
+        const [convertedUrl, setConvertedUrl] = useState("");
+        const [originalBytes, setOriginalBytes] = useState(0);
+        const [convertedBytes, setConvertedBytes] = useState(0);
+
+        useEffect(() => {
+          if (!file) {
+            setOriginalUrl("");
+            setOriginalBytes(0);
+            return;
+          }
+
+          const url = URL.createObjectURL(file);
+          setOriginalUrl(url);
+          setOriginalBytes(file.size || 0);
+          return () => URL.revokeObjectURL(url);
+        }, [file]);
+
+        useEffect(() => {
+          if (!convertedBlob) {
+            setConvertedUrl("");
+            setConvertedBytes(0);
+            return;
+          }
+
+          const url = URL.createObjectURL(convertedBlob);
+          setConvertedUrl(url);
+          setConvertedBytes(convertedBlob.size || 0);
+          return () => URL.revokeObjectURL(url);
+        }, [convertedBlob]);
+
+        function resetOutput() {
+          setConvertedBlob(null);
+          setError("");
+        }
+
+        function onFileChange(e) {
+          const next = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+          setFile(next);
+          resetOutput();
+        }
+
+        async function convertImage() {
+          if (!file) {
+            setError("Please select an image first.");
+            return;
+          }
+
+          setBusy(true);
+          setError("");
+          setConvertedBlob(null);
+
+          try {
+            const dataUrl = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onerror = () => reject(new Error("Failed to read file."));
+              reader.onload = () => resolve(reader.result);
+              reader.readAsDataURL(file);
+            });
+
+            const img = await new Promise((resolve, reject) => {
+              const image = new Image();
+              image.onload = () => resolve(image);
+              image.onerror = () => reject(new Error("Failed to load image."));
+              image.src = String(dataUrl);
+            });
+
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth || img.width;
+            canvas.height = img.naturalHeight || img.height;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) throw new Error("Canvas is not supported in this browser.");
+            ctx.drawImage(img, 0, 0);
+
+            const blob = await new Promise((resolve) => {
+              canvas.toBlob(
+                (b) => resolve(b),
+                targetFormat,
+                0.92
+              );
+            });
+
+            if (!blob) {
+              setError("Conversion failed. Try another image.");
+              return;
+            }
+
+            setConvertedBlob(blob);
+          } catch (e) {
+            const msg = e && typeof e.message === "string" ? e.message : "Conversion failed.";
+            setError(msg);
+          } finally {
+            setBusy(false);
+          }
+        }
+
+        const convertedTypeLabel =
+          targetFormat === "image/png" ? "PNG" : targetFormat === "image/webp" ? "WEBP" : "JPG";
+
+        return (
+          <Page>
+            <ToolCard>
+              <div className="bg-white/70 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-sm p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+                  <div className="flex-1">
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Image Converter</h2>
+                    <p className="text-slate-600 mt-2">
+                      Convert image formats instantly in your browser. Supports JPG, PNG, and WEBP.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-image-converter-file">
+                      Choose image
+                    </label>
+                    <input
+                      id="clipdrop-image-converter-file"
+                      type="file"
+                      accept="image/*"
+                      onChange={onFileChange}
+                      className={cx(
+                        "mt-1 block w-full text-sm",
+                        "file:mr-4 file:py-2.5 file:px-4",
+                        "file:rounded-lg file:border-0",
+                        "file:text-sm file:font-semibold",
+                        "file:bg-slate-900 file:text-slate-100 file:cursor-pointer",
+                        "hover:file:bg-slate-800 transition-colors duration-200"
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="clipdrop-image-converter-format">
+                      Output format
+                    </label>
+                    <select
+                      id="clipdrop-image-converter-format"
+                      value={targetFormat}
+                      onChange={(e) => {
+                        setTargetFormat(e.target.value);
+                        resetOutput();
+                      }}
+                      className={UI.input}
+                    >
+                      <option value="image/jpeg">JPG</option>
+                      <option value="image/png">PNG</option>
+                      <option value="image/webp">WEBP</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={convertImage}
+                    className={cx(UI.btnPrimary, !file || busy ? "opacity-60 cursor-not-allowed" : "")}
+                    disabled={!file || busy}
+                  >
+                    {busy ? "Converting..." : "Convert"}
+                  </button>
+
+                  {convertedUrl ? (
+                    <a
+                      href={convertedUrl}
+                      download="converted-image.jpg"
+                      className={UI.btnSecondary}
+                    >
+                      Download Image
+                    </a>
+                  ) : (
+                    <button type="button" className={UI.btnSecondary} disabled>
+                      Download Image
+                    </button>
+                  )}
+                </div>
+
+                {error ? <div className="mt-4 text-sm font-medium text-rose-600 bg-rose-50 px-3 py-2 rounded-lg">{error}</div> : null}
+
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className={UI.subCard}>
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div className="text-sm font-semibold text-slate-800">Original image preview</div>
+                      <div className="text-xs font-medium text-slate-600 tabular-nums">{formatBytes(originalBytes)}</div>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                      {originalUrl ? (
+                        <img src={originalUrl} alt="Original image preview" className="w-full max-h-[360px] object-contain" />
+                      ) : (
+                        <div className="h-56 flex items-center justify-center text-sm font-medium text-slate-500">Upload an image to preview</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={UI.subCard}>
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div className="text-sm font-semibold text-slate-800">Converted image preview ({convertedTypeLabel})</div>
+                      <div className="text-xs font-medium text-slate-600 tabular-nums">{formatBytes(convertedBytes)}</div>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                      {convertedUrl ? (
+                        <img src={convertedUrl} alt="Converted image preview" className="w-full max-h-[360px] object-contain" />
+                      ) : (
+                        <div className="h-56 flex items-center justify-center text-sm font-medium text-slate-500">
+                          {file ? "Click Convert to generate preview" : "Select an image to convert"}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <h1 className="text-2xl font-bold mt-4">
+                Free Image Converter Online
+              </h1>
+
+              <p className="mt-2 text-gray-600 text-sm">
+                Convert images online for free. Easily change PNG to JPG, JPG to PNG, or WEBP format directly in your browser without uploading files. This image converter online tool is fast for png to jpg and jpg to png conversions.
+              </p>
             </ToolCard>
           </Page>
         );
@@ -2780,6 +3041,8 @@
             return "/word-counter";
           case PAGES.IMAGE_COMPRESSOR:
             return "/image-compressor";
+          case PAGES.IMAGE_CONVERTER:
+            return "/image-converter";
           case PAGES.PASSWORD_GENERATOR:
             return "/password-generator";
           case PAGES.AGE_CALCULATOR:
@@ -2832,6 +3095,9 @@
         } else if (path === "/image-compressor") {
           page = PAGES.IMAGE_COMPRESSOR;
           content = <ImageCompressor />;
+        } else if (path === "/image-converter") {
+          page = PAGES.IMAGE_CONVERTER;
+          content = <ImageConverter />;
         } else if (path === "/password-generator") {
           page = PAGES.PASSWORD_GENERATOR;
           content = <PasswordGenerator />;
