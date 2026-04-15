@@ -1375,7 +1375,7 @@
         );
       }
 
-      function ImageCompressor() {
+      function ImageCompressor({ navigate }) {
         const [file, setFile] = useState(null);
         const [quality, setQuality] = useState(0.8);
         const [error, setError] = useState("");
@@ -1629,12 +1629,32 @@
                 <li>Choose compression level</li>
                 <li>Download result</li>
               </ul>
+
+              <h2 className="mt-6 font-semibold">Related Tools</h2>
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate("/image-converter")}
+                  className="rounded-xl border p-3 hover:shadow text-left transition"
+                >
+                  <div className="font-semibold text-slate-900">Image Converter</div>
+                  <div className="text-sm text-slate-600 mt-1">Convert JPG, PNG, and WEBP formats.</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/qr-generator")}
+                  className="rounded-xl border p-3 hover:shadow text-left transition"
+                >
+                  <div className="font-semibold text-slate-900">QR Code Generator</div>
+                  <div className="text-sm text-slate-600 mt-1">Create downloadable QR codes instantly.</div>
+                </button>
+              </div>
             </ToolCard>
           </Page>
         );
       }
 
-      function ImageConverter() {
+      function ImageConverter({ navigate }) {
         const [file, setFile] = useState(null);
         const [targetFormat, setTargetFormat] = useState("image/jpeg");
         const [busy, setBusy] = useState(false);
@@ -1869,12 +1889,32 @@
                 <li>Choose format</li>
                 <li>Download result</li>
               </ul>
+
+              <h2 className="mt-6 font-semibold">Related Tools</h2>
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate("/image-compressor")}
+                  className="rounded-xl border p-3 hover:shadow text-left transition"
+                >
+                  <div className="font-semibold text-slate-900">Image Compressor</div>
+                  <div className="text-sm text-slate-600 mt-1">Compress image files and reduce image size.</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/qr-generator")}
+                  className="rounded-xl border p-3 hover:shadow text-left transition"
+                >
+                  <div className="font-semibold text-slate-900">QR Code Generator</div>
+                  <div className="text-sm text-slate-600 mt-1">Generate QR codes for links and text.</div>
+                </button>
+              </div>
             </ToolCard>
           </Page>
         );
       }
 
-      function QRCodeGenerator() {
+      function QRCodeGenerator({ navigate }) {
         const [text, setText] = useState("");
         const [qrDataUrl, setQrDataUrl] = useState("");
         const [busy, setBusy] = useState(false);
@@ -1998,6 +2038,26 @@
               <p className="mt-2 text-gray-600 text-sm">
                 Generate QR codes online for free. Create QR codes for URLs, text, and more instantly. This qr code generator helps you create qr code images with a free qr code tool.
               </p>
+
+              <h2 className="mt-6 font-semibold">Related Tools</h2>
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate("/image-converter")}
+                  className="rounded-xl border p-3 hover:shadow text-left transition"
+                >
+                  <div className="font-semibold text-slate-900">Image Converter</div>
+                  <div className="text-sm text-slate-600 mt-1">Convert image formats in your browser.</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/image-compressor")}
+                  className="rounded-xl border p-3 hover:shadow text-left transition"
+                >
+                  <div className="font-semibold text-slate-900">Image Compressor</div>
+                  <div className="text-sm text-slate-600 mt-1">Compress image files without upload.</div>
+                </button>
+              </div>
             </ToolCard>
           </Page>
         );
@@ -3240,6 +3300,12 @@
           window.location.reload();
         }
 
+        function navigate(path) {
+          const to = normalizePathname(path);
+          window.history.pushState({}, "", to);
+          window.location.reload();
+        }
+
         const path = normalizePathname(window.location.pathname);
 
         let page = PAGES.HOME;
@@ -3253,13 +3319,13 @@
           content = <WordCounter />;
         } else if (path === "/image-compressor") {
           page = PAGES.IMAGE_COMPRESSOR;
-          content = <ImageCompressor />;
+          content = <ImageCompressor navigate={navigate} />;
         } else if (path === "/image-converter") {
           page = PAGES.IMAGE_CONVERTER;
-          content = <ImageConverter />;
+          content = <ImageConverter navigate={navigate} />;
         } else if (path === "/qr-generator") {
           page = PAGES.QR_GENERATOR;
-          content = <QRCodeGenerator />;
+          content = <QRCodeGenerator navigate={navigate} />;
         } else if (path === "/password-generator") {
           page = PAGES.PASSWORD_GENERATOR;
           content = <PasswordGenerator />;
