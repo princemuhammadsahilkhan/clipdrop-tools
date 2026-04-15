@@ -1916,53 +1916,83 @@
 
       function QRCodeGenerator({ navigate }) {
         const [text, setText] = useState("");
-        const [qrDataUrl, setQrDataUrl] = useState("");
+        const [hasQr, setHasQr] = useState(false);
         const [busy, setBusy] = useState(false);
         const [error, setError] = useState("");
 
-        async function generateQr() {
+        function clearQrCanvas() {
+          const canvas = document.getElementById("qrCanvas");
+          if (!canvas) return;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function generateQr() {
           const value = String(text || "").trim();
           if (!value) {
             setError("Please enter text or a URL.");
-            setQrDataUrl("");
+            clearQrCanvas();
+            setHasQr(false);
             return;
           }
 
-          if (!window.QRCode || !window.QRCode.toDataURL) {
+          if (!window.QRCode || !window.QRCode.toCanvas) {
             setError("QR library failed to load. Please refresh and try again.");
-            setQrDataUrl("");
+            clearQrCanvas();
+            setHasQr(false);
+            return;
+          }
+
+          const canvas = document.getElementById("qrCanvas");
+          if (!canvas) {
+            setError("QR canvas not found.");
+            setHasQr(false);
             return;
           }
 
           setBusy(true);
           setError("");
 
-          try {
-            const url = await new Promise((resolve, reject) => {
-              window.QRCode.toDataURL(
-                value,
-                {
-                  width: 320,
-                  margin: 2,
-                  errorCorrectionLevel: "M",
-                },
-                (err, dataUrl) => {
-                  if (err) {
-                    reject(err);
-                    return;
-                  }
-                  resolve(dataUrl);
-                }
-              );
-            });
+          window.QRCode.toCanvas(
+            canvas,
+            value,
+            {
+              width: 320,
+              margin: 2,
+              errorCorrectionLevel: "M",
+            },
+            (err) => {
+              if (err) {
+                const msg = err && typeof err.message === "string" ? err.message : "Failed to generate QR code.";
+                setError(msg);
+                clearQrCanvas();
+                setHasQr(false);
+              } else {
+                setHasQr(true);
+              }
+              setBusy(false);
+            }
+          );
+        }
 
-            setQrDataUrl(String(url));
-          } catch (e) {
-            const msg = e && typeof e.message === "string" ? e.message : "Failed to generate QR code.";
-            setError(msg);
-            setQrDataUrl("");
-          } finally {
-            setBusy(false);
+        function downloadQr() {
+          const canvas = document.getElementById("qrCanvas");
+          if (!canvas) {
+            setError("QR canvas not found.");
+            return;
+          }
+
+          try {
+            const url = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "qr-code.png";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } catch {
+            setError("Failed to download QR code.");
           }
         }
 
@@ -2004,10 +2034,10 @@
                     {busy ? "Generating..." : "Generate"}
                   </button>
 
-                  {qrDataUrl ? (
-                    <a href={qrDataUrl} download="qr-code.png" className={UI.btnSecondary}>
+                  {hasQr ? (
+                    <button type="button" onClick={downloadQr} className={UI.btnSecondary}>
                       Download PNG
-                    </a>
+                    </button>
                   ) : (
                     <button type="button" className={UI.btnSecondary} disabled>
                       Download PNG
@@ -2021,11 +2051,8 @@
                   <div className={UI.subCard}>
                     <div className="text-sm font-semibold text-slate-800 mb-3">QR Preview</div>
                     <div className="rounded-lg border border-slate-200 bg-white overflow-hidden min-h-[280px] flex items-center justify-center p-4">
-                      {qrDataUrl ? (
-                        <img src={qrDataUrl} alt="Generated QR code" className="w-64 h-64 object-contain" />
-                      ) : (
-                        <div className="text-sm font-medium text-slate-500">Enter text and click Generate</div>
-                      )}
+                      <canvas id="qrCanvas" width="320" height="320" className={cx(hasQr ? "block" : "hidden", "w-64 h-64 object-contain")} />
+                      {!hasQr ? <div className="text-sm font-medium text-slate-500">Enter text and click Generate</div> : null}
                     </div>
                   </div>
                 </div>
