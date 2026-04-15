@@ -45,7 +45,6 @@
 
     <!-- Babel (CDN for JSX) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 
     <script type="text/babel">
       const { useEffect, useMemo, useRef, useState } = React;
@@ -1916,84 +1915,16 @@
 
       function QRCodeGenerator({ navigate }) {
         const [text, setText] = useState("");
-        const [hasQr, setHasQr] = useState(false);
-        const [busy, setBusy] = useState(false);
-        const [error, setError] = useState("");
-
-        function clearQrCanvas() {
-          const canvas = document.getElementById("qrCanvas");
-          if (!canvas) return;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) return;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        const [qrUrl, setQrUrl] = useState("");
 
         function generateQr() {
           const value = String(text || "").trim();
           if (!value) {
-            setError("Please enter text or a URL.");
-            clearQrCanvas();
-            setHasQr(false);
             return;
           }
 
-          if (!window.QRCode || !window.QRCode.toCanvas) {
-            setError("QR library failed to load. Please refresh and try again.");
-            clearQrCanvas();
-            setHasQr(false);
-            return;
-          }
-
-          const canvas = document.getElementById("qrCanvas");
-          if (!canvas) {
-            setError("QR canvas not found.");
-            setHasQr(false);
-            return;
-          }
-
-          setBusy(true);
-          setError("");
-
-          window.QRCode.toCanvas(
-            canvas,
-            value,
-            {
-              width: 320,
-              margin: 2,
-              errorCorrectionLevel: "M",
-            },
-            (err) => {
-              if (err) {
-                const msg = err && typeof err.message === "string" ? err.message : "Failed to generate QR code.";
-                setError(msg);
-                clearQrCanvas();
-                setHasQr(false);
-              } else {
-                setHasQr(true);
-              }
-              setBusy(false);
-            }
-          );
-        }
-
-        function downloadQr() {
-          const canvas = document.getElementById("qrCanvas");
-          if (!canvas) {
-            setError("QR canvas not found.");
-            return;
-          }
-
-          try {
-            const url = canvas.toDataURL("image/png");
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "qr-code.png";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          } catch {
-            setError("Failed to download QR code.");
-          }
+          const nextQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(value)}`;
+          setQrUrl(nextQrUrl);
         }
 
         return (
@@ -2017,7 +1948,6 @@
                     value={text}
                     onChange={(e) => {
                       setText(e.target.value);
-                      setError("");
                     }}
                     placeholder="https://example.com or any text"
                     className={UI.input}
@@ -2028,33 +1958,24 @@
                   <button
                     type="button"
                     onClick={generateQr}
-                    className={cx(UI.btnPrimary, !text.trim() || busy ? "opacity-60 cursor-not-allowed" : "")}
-                    disabled={!text.trim() || busy}
+                    className={cx(UI.btnPrimary, !text.trim() ? "opacity-60 cursor-not-allowed" : "")}
+                    disabled={!text.trim()}
                   >
-                    {busy ? "Generating..." : "Generate"}
+                    Generate
                   </button>
-
-                  {hasQr ? (
-                    <button type="button" onClick={downloadQr} className={UI.btnSecondary}>
-                      Download PNG
-                    </button>
-                  ) : (
-                    <button type="button" className={UI.btnSecondary} disabled>
-                      Download PNG
-                    </button>
-                  )}
                 </div>
 
-                {error ? <div className="mt-4 text-sm font-medium text-rose-600 bg-rose-50 px-3 py-2 rounded-lg">{error}</div> : null}
-
-                <div className="mt-6">
-                  <div className={UI.subCard}>
-                    <div className="text-sm font-semibold text-slate-800 mb-3">QR Preview</div>
-                    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden min-h-[280px] flex items-center justify-center p-4">
-                      <canvas id="qrCanvas" width="320" height="320" className={cx(hasQr ? "block" : "hidden", "w-64 h-64 object-contain")} />
-                      {!hasQr ? <div className="text-sm font-medium text-slate-500">Enter text and click Generate</div> : null}
-                    </div>
-                  </div>
+                <div className="mt-4 flex flex-col items-center gap-3">
+                  {qrUrl ? (
+                    <>
+                      <img src={qrUrl} alt="QR Code" className="w-56 h-56 object-contain rounded-lg border border-slate-200 bg-white p-2" />
+                      <a href={qrUrl} download="qr-code.png" className={UI.btnSecondary}>
+                        Download QR Code
+                      </a>
+                    </>
+                  ) : (
+                    <div className="text-sm font-medium text-slate-500">Enter text and click Generate</div>
+                  )}
                 </div>
               </div>
 
